@@ -2007,7 +2007,6 @@ menu_principal() {
         1) menu_gestion_machine ;;
         2) menu_utilisateurs ;;
         Q|q)
-           
             clear
 
             #ON ENREGISTRE LA DECONNEXION DANS LE LOG
@@ -2032,8 +2031,8 @@ menu_principal() {
 #ON PREPARE LE FICHIER DE LOG ET LE DOSSIER INFO
 initialiser_journal
 
-#ON ENREGISTRE LA CONNEXION A LA MACHINE DANS LE LOG
+#LOG
 sauvegarder_log "ConnexionMachine"
 
-#ON LANCE LE MENU PRINCIPAL
+#LANCEMENT DU MENU PRINCIPAL
 menu_principal
