@@ -1,8 +1,9 @@
 #!/bin/bash
 ##################################################################
-#SCRIPT PRINCIPAL GUI - DIALOG
-#SCRIPT_BY ANIS FRED EROS
-#WILD_CODE_SCHOOL
+#                 SCRIPT PRINCIPAL AVCE DIALOG                   #
+#                    SCRIPT_BY ANIS FRED EROS                    #
+#                       WILD_CODE_SCHOOL                         #
+#                        12/12/2025                              #
 ##################################################################
 
 export LANG=C.UTF-8
@@ -89,7 +90,7 @@ BACKTITLE=""
 ###############################################################
 #                     FONCTIONS DIALOG                        #
 ###############################################################
-
+##############################################################
 #FONCTION POUR AFFICHE UNE INFORMATION
 afficher_info() {
     local titre="${2:-INFORMATION}"
@@ -97,28 +98,28 @@ afficher_info() {
         --title "[ $titre ]" \
         --msgbox "$1" 10 55
 }
-
+##############################################################
 #FONCTION POUR AFFICHE UNE ERREUR 
 afficher_erreur() {
     dialog --backtitle "$BACKTITLE" \
         --title "[ ERREUR ]" \
         --msgbox "$1" 10 55
 }
-
+##############################################################
 #FONCTION POUR AFFICHE UN SUCCES 
 afficher_succes() {
     dialog --backtitle "$BACKTITLE" \
         --title "[ SUCCES ]" \
         --msgbox "$1" 10 55
 }
-
+##############################################################
 #FONCTION POUR AFFICHE UN AVERTISSEMENT 
 afficher_avertissement() {
     dialog --backtitle "$BACKTITLE" \
         --title "[ ATTENTION ]" \
         --msgbox "$1" 10 55
 }
-
+##############################################################
 #FONCTION POUR DEMANDER UNE CONFIRMATION O/N
 demander_confirmation() {
     dialog --backtitle "$BACKTITLE" \
@@ -129,7 +130,7 @@ demander_confirmation() {
         --yesno "$1" 10 55
     return $?
 }
-
+##############################################################
 #FONCTION POUR DEMANDER UNE SAISIE
 demander_saisie() {
     local titre="$1"
@@ -146,7 +147,7 @@ demander_saisie() {
     fi
     return $ret
 }
-
+##############################################################
 #FONCTION POUR DEMANDE UN MOT DE PASSE
 demander_mot_de_passe() {
     local titre="$1"
@@ -164,7 +165,7 @@ demander_mot_de_passe() {
     fi
     return $ret
 }
-
+##############################################################
 #FONCTION POUR AFFICHE DU TEXTE
 afficher_texte() {
     local titre="$1"
@@ -175,7 +176,7 @@ afficher_texte() {
         --exit-label "Retour" \
         --textbox "$fichier_result" $HAUTEUR $LARGEUR
 }
-
+##############################################################
 #FONCTION POUR AFFICHE UN MESSAGE DE CHARGEMENT
 afficher_chargement() {
     local message="$1"
@@ -187,7 +188,6 @@ afficher_chargement() {
 ###############################################################
 #                       FONCTIONS SSH                         #
 ###############################################################
-
 #FONCTION POUR EXECUTE UNE COMMANDE SSH SUR LA MACHINE DISTANTE
 executer_ssh() {
     local commande="$1"
@@ -195,12 +195,10 @@ executer_ssh() {
 
 
 }
-
 ###############################################################
 #                 FONCTION AFFICHER UTILISATEURS              #
 ###############################################################
-
-#FONCTION POUR AFFICHE LA LISTE DES UTILISATEURS LOCAUX (FORMAT PIPES)
+#FONCTION POUR AFFICHE LA LISTE DES UTILISATEURS LOCAUX 
 afficher_utilisateurs_locaux() {
     executer_ssh "cat /etc/passwd | grep '/home' | cut -d':' -f1 | tr '\n' ' ' | sed 's/ / | /g' | sed 's/ | $//'"
 }
@@ -208,8 +206,6 @@ afficher_utilisateurs_locaux() {
 ###############################################################
 #                        DETECTION RESEAU                     #
 ###############################################################
-
-##################################################################
 #FONCTION POUR DETECTE SI UNE MACHINE EST LINUX VIA SSH
 detecter_linux() {
     local ip="$1"
@@ -224,16 +220,16 @@ recuperer_nom_machine() {
     #ON RECUPERE LADRESSE IP PASSEE EN PARAMETRE
     local ip="$1"
     
-    #POUR STOCKER LE NOM DE LA MACHINE
+    #STOCKE LE NOM DE LA MACHINE
     local nom=""
     
-    #ON SE CONNECTE EN SSH ET ON EXECUTE LA COMMANDE HOSTNAME
+    #ON SE CONNECTE EN SSH ET ON EXECUTE LA COMMANDE *HOSTNAME*
     nom=$(ssh -o ConnectTimeout=3 -o BatchMode=yes -o StrictHostKeyChecking=no "${utilisateur_linux}@${ip}" "hostname" 2>/dev/null | tr -d '\r')
     
     #SI ON A RECUPERE UN NOM ON LE STOCKE DANS LE TABLEAU
     if [ -n "$nom" ]; then
         noms_machines["$ip"]="$nom"
-    #SINON ON MET UN POINT INTERROGATION
+    #SINON ON MET UN *?*
     else
         noms_machines["$ip"]="?"
     fi
@@ -261,7 +257,7 @@ scanner_reseau() {
             #ADRESSE IP A TESTER
             local ip="${ip_reseau}${i}"
             
-            #ON LANCE LE PING EN ARRIERE-PLAN SI LA MACHINE REPOND ON ENREGISTRE SON IP
+            #ON LANCE LE PING EN ARRIERE PLAN SI LA MACHINE REPOND ON ENREGISTRE SON IP
             (
                 ping -c 1 -W "$delai_ping" "$ip" &>/dev/null && echo "$ip" >> "$fichier_temp"
             ) &
@@ -357,14 +353,13 @@ scanner_reseau() {
     #ON SUPPRIME LES FICHIERS TEMPORAIRES
     rm -f "$fichier_temp" "$fichier_noms"
     
-    # SI ON A TROUVE AU MOINS UNE MACHINE
+    #SI ON A TROUVE AU MOINS UNE MACHINE
     [ ${#liste_ip[@]} -gt 0 ]
 }
 
 ###############################################################
 #                     FONCTIONS REPERTOIRES                   #
 ###############################################################
-
 ##################################################################
 #FONCTION POUR CREE UN NOUVEAU REPERTOIRE
 creer_repertoire() {
@@ -520,10 +515,9 @@ $liste_maj"
 }
 
 ###############################################################
-#FONCTIONS SERVICES
+#                   FONCTIONS SERVICES                        #
 ###############################################################
-
-##################################################################
+#############################################################
 #FONCTION POUR AFFICHE LES SERVICES EN COURS
 afficher_services_en_cours() {
     afficher_chargement "Recuperation des services..."
@@ -531,7 +525,7 @@ afficher_services_en_cours() {
     #ON RECUPERE LA LISTE DES SERVICES EN COURS 
     local liste_services=$(executer_ssh "systemctl list-units --type=service --state=running --no-pager 2>/dev/null | grep '.service'")
     
-    #ON COMPTE LE NOMBRE DE LIGNES
+    #NOMBRE DE LIGNES
     local nb_lignes=$(echo "$liste_services" | wc -l)
     
     if [ -z "$liste_services" ]; then
@@ -549,10 +543,9 @@ afficher_services_en_cours() {
 }
 
 ###############################################################
-#FONCTIONS RESEAU
+#                      FONCTIONS RESEAU                       #
 ###############################################################
-
-##################################################################
+#############################################################
 #FONCTION POUR AFFICHE LES PORTS OUVERTS
 afficher_ports_ouverts() {
     afficher_chargement "Recuperation des ports ouverts..."
@@ -566,7 +559,7 @@ afficher_ports_ouverts() {
     
     afficher_texte "PORTS OUVERTS" "$liste_ports"
 }
-##################################################################
+#############################################################
 #FONCTION POUR AFFICHE LA CONFIGURATION IP
 afficher_config_ip() {
     afficher_chargement "Recuperation configuration IP..."
@@ -633,10 +626,9 @@ activer_pare_feu() {
 }
 
 ###############################################################
-#FONCTIONS SYSTEME
+#                     FONCTIONS SYSTEME                       #
 ###############################################################
-
-##################################################################
+##############################################################
 #FONCTION POUR AFFICHE LES INFORMATIONS SYSTEME
 afficher_info_systeme() {
     afficher_chargement "Recuperation infos systeme..."
@@ -652,7 +644,7 @@ afficher_info_systeme() {
     
     afficher_texte "INFORMATIONS SYSTEME" "$result"
 }
-##################################################################
+###############################################################
 #FONCTION POUR AFFICHE LUTILISATION DE LA RAM
 afficher_utilisation_ram() {
     afficher_chargement "Recuperation utilisation RAM..."
@@ -664,10 +656,9 @@ afficher_utilisation_ram() {
 }
 
 ###############################################################
-#FONCTIONS CONTROLES
+#                    FONCTIONS CONTROLES                      #
 ###############################################################
-
-##################################################################
+#############################################################
 #FONCTION POUR REDEMARRE LA MACHINE
 redemarrer_machine() {
     #ON DEMANDE UNE PREMIERE CONFIRMATION
@@ -733,7 +724,7 @@ executer_script_distant() {
         demander_confirmation "Voulez-vous executer un autre script ?" || return
     done
 }
-
+#############################################################
 #FONCTION POUR OUVRE UNE CONSOLE
 ouvrir_console_distante() {
     #ON LANCE UN NOUVEAU SHELL BASH VIA SSH
@@ -743,8 +734,7 @@ ouvrir_console_distante() {
 ###############################################################
 #                   FONCTIONS UTILISATEURS                    #
 ###############################################################
-
-##################################################################
+##############################################################
 #FONCTION POUR AFFICHE LES PERMISSIONS DUN FICHIER 
 afficher_permissions_utilisateur() {
     while true; do
@@ -752,7 +742,7 @@ afficher_permissions_utilisateur() {
         local Chemin
         Chemin=$(demander_saisie "DROITS ET PERMISSIONS SUR FICHIER" "Chemin du fichier ou dossier :")
         
-        #ON REGARDE SI L UTILISATEUR VEUT QUITTER
+        #ON REGARDE SI LUTILISATEUR VEUT QUITTER
         [ $? -ne 0 ] && return
         
         #ON REGARDE SI LE CHEMIN EST VIDE
@@ -857,7 +847,7 @@ creer_utilisateur_local() {
         demander_confirmation "Voulez-vous creer un autre utilisateur ?" || return
     done
 }
-##################################################################
+###########################################################
 #FONCTION POUR MODIFIE LE MOT DE PASSE DUN UTILISATEUR
 modifier_mot_de_passe_utilisateur() {
     while true; do
@@ -905,7 +895,7 @@ modifier_mot_de_passe_utilisateur() {
         
         #ON VERIFIE QUE LES DEUX MOTS DE PASSE CORRESPONDENT
         if [ "$mot_de_passe" = "$mot_de_passe_confirm" ]; then
-            #ON APPLIQUE LE MOT DE PASSE AVEC CHPASSWD
+            #ON APPLIQUE LE MOT DE PASSE 
             afficher_chargement "Modification du mot de passe..."
             local result=$(executer_ssh "echo '$NomUtilisateur:$mot_de_passe' | sudo chpasswd 2>&1")
             if [ -z "$result" ]; then
@@ -1208,7 +1198,7 @@ ajouter_utilisateur_groupe() {
 ###############################################################
 #                           MENUS                             #
 ###############################################################
-##################################################################
+#############################################################
 #FONCTION POUR AFFICHE LE MENU DES REPERTOIRES
 menu_repertoires() {
     while true; do
@@ -1528,10 +1518,6 @@ nettoyer() {
     clear
 }
 
-#CONFIGURATION TRAP
-#EXIT = FIN NORMALE OU EXIT
-#SIGINT = CTRL+C
-#SIGTERM = KILL DU PROCESSUS
 trap nettoyer EXIT SIGINT SIGTERM
 
 ###############################################################
@@ -1549,6 +1535,5 @@ if ! command -v dialog &>/dev/null; then
     exit 1
 fi
 
-#ON EFFACE LECRAN ET ON LANCE LE MENU PRINCIPAL
 clear
 menu_principal
