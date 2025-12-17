@@ -2,8 +2,8 @@
 
 ##################################################################
 #                     SCRIPT_LINUX                               #
-#                 SCRIPT_BY ANIS FRED EROS                       #
-#                     WILD_CODE_SCHOOL                           #
+#                SCRIPT_BY ANIS FRED EROS                        #
+#                   WILD_CODE_SCHOOL                             #
 #                      24/11/2025                                #
 ##################################################################
 
@@ -14,7 +14,7 @@
 # EMPLACEMENT DOSSIER LOG TEMPORAIRE
 log_dir="/tmp"
 
-# EMPLACEMENT FICHIER DE LOG
+# EMPLACEMENT FICHIER LOG
 log_file="$log_dir/log_evt.log"
 
 # EMPLACEMENT DOSSIER INFO TEMPORAIRE
@@ -43,7 +43,7 @@ RESET='\e[0m'
 ####################################################################
 #                     FONCTIONS DE JOURNALISATION                  #
 ####################################################################
-
+####################################################################
 #FONCTION QUI PREPARE LE FICHIER DE LOG ET LE DOSSIER INFO
 initialiser_journal() {
     # ON CREE LE FICHIER DE LOG DANS LE DOSSIER TMP
@@ -55,29 +55,28 @@ initialiser_journal() {
         mkdir -p "$info_dir" 2>/dev/null
     fi
 }
-
-
+####################################################################
 #FONCTION QUI ENREGISTRE UN EVENEMENT DANS LE FICHIER DE LOG
 sauvegarder_log() {
-    # ON RECUPERE LE NOM DE L EVENEMENT PASSE EN ARGUMENT
+    # ON RECUPERE LE NOM DE LEVENEMENT PASSE EN ARGUMENT
     local evenement="$1"
 
     # ON DECLARE UNE VARIABLE POUR LA DATE
     local date_evt
 
-    # ON DECLARE UNE VARIABLE POUR L HEURE
+    # ON DECLARE UNE VARIABLE POUR LHEURE
     local heure_evt
 
     # ON RECUPERE LA DATE DU JOUR AU FORMAT ANNEE MOIS JOUR
     date_evt=$(date "+%Y%m%d")
 
-    # ON RECUPERE L HEURE ACTUELLE AU FORMAT HEURE MINUTE SECONDE
+    # ON RECUPERE LHEURE ACTUELLE AU FORMAT HEURE MINUTE SECONDE
     heure_evt=$(date "+%H%M%S")
 
     # ON ECRIT LA LIGNE DANS LE FICHIER DE LOG
     echo "${date_evt}_${heure_evt}_${utilisateur_local}_${utilisateur_distant}_${nom_machine}_${evenement}" >> "$log_file" 2>/dev/null
 }
-
+####################################################################
 #FONCTION QUI ENREGISTRE DES INFORMATIONS DANS UN FICHIER
 sauvegarder_info() {
     # ON RECUPERE LE CONTENU A ENREGISTRER PASSE EN ARGUMENT
@@ -111,7 +110,7 @@ verifier_mot_de_passe_admin() {
     #NOM DE LACTION SENSIBLE
     echo "=== ACTION SENSIBLE : $action ==="
     echo ""
-    #ON DEMANDE LE MOT DE PASSE SANS L AFFICHER A L ECRAN
+    #ON DEMANDE LE MOT DE PASSE SANS L AFFICHER A LECRAN
     read -s -p "MOT DE PASSE ADMINISTRATEUR: " mdp
     echo ""
     
@@ -145,7 +144,7 @@ afficher_entete() {
     #ON RECUPERE LE NOM DE LA MACHINE
     NomMachine=$(hostname)
 
-    #ON RECUPERE L ADRESSE IP QUI COMMENCE PAR 172.16.20
+    #ON RECUPERE LADRESSE IP 172.16.20
     AdresseIP=$(hostname -I | tr ' ' '\n' | grep "^172.16.20" | head -n1)
 
     #ON REGARDE SI ON A TROUVE UNE ADRESSE IP
@@ -161,7 +160,6 @@ afficher_entete() {
     echo -e "${BLEU}####################${BLANC}##############${ROUGE}####################${RESET}"
     echo ""
 }
-
 ####################################################################
 #                 FONCTION AFFICHER UTILISATEURS                   #
 ####################################################################
@@ -172,7 +170,7 @@ afficher_utilisateurs_locaux() {
 
     echo ""
 
-    #ON LIT LE FICHIER PASSWD ET ON GARDE SEULEMENT LES UTILISATEURS AVEC UN HOME
+    #ON AFFICHE LE FICHIER PASSWD ET ON GARDE SEULEMENT LES UTILISATEURS AVEC UN HOME
     cat /etc/passwd | grep "/home"
 
     echo ""
@@ -186,7 +184,7 @@ afficher_utilisateurs_locaux() {
 creer_repertoire() {
     #ENTETE
     afficher_entete
-            #TITRE DE LA FONCTION
+            #TITRE 
             echo "  CREATION DE REPERTOIRE"
 
             echo ""
@@ -231,7 +229,6 @@ creer_repertoire() {
             #SI L'UTILISATEUR N'A PAS CONFIRME DONC ON ANNULE
             echo -e "${GRIS}CREATION ANNULEE${RESET}"
             read -p "APPUYEZ SUR [ENTREE] POUR CONTINUER"
-                #ON RETOURNE AU MENU DES REPERTOIRES
                 menu_repertoires
                 return
     fi
@@ -269,7 +266,7 @@ supprimer_repertoire() {
     #ENTETE
     afficher_entete
     
-        #TITRE DE LA FONCTION
+        #TITRE 
         echo "  SUPPRESSION DE REPERTOIRE"
 
         echo ""
@@ -279,7 +276,7 @@ supprimer_repertoire() {
     
     #ON VERIFIE SI L'UTILISATEUR VEUT QUITTER 
     if [ "$Chemin" = "q" ] || [ "$Chemin" = "Q" ]; then
-            #ON ENREGISTRE LE RETOUR DANS LE LOG
+            #LOG
             sauvegarder_log "Navigation_Retour"
             menu_repertoires
             return
@@ -350,7 +347,7 @@ supprimer_repertoire() {
                 supprimer_repertoire
     else
         
-                menu_repertoires
+            menu_repertoires
     fi
 }
 ####################################################################
@@ -365,7 +362,7 @@ afficher_mises_a_jour_manquantes() {
     echo "  MISES A JOUR CRITIQUES"
     echo ""
     
-    #ENREGISTREMENT DANS LOG
+    #LOG
     sauvegarder_log "Consultation_MisesAJourCritiques"
     
     #ON RECUPERE LA LISTE DES MISES A JOUR DE SECURITE
@@ -373,7 +370,7 @@ afficher_mises_a_jour_manquantes() {
     
     #SI LA LISTE EST VIDE ON VERIFIE AVEC UNE AUTRE METHODE
     if [ -z "$liste_maj" ]; then
-        #ON ESSAIE AVEC LE DEPOT SECURITY
+        #ON ESSAIE AVEC *SECURITY*
         liste_maj=$(apt list --upgradable 2>/dev/null | grep -E "security|Security" | cut -d'/' -f1)
     fi
     
@@ -385,7 +382,7 @@ afficher_mises_a_jour_manquantes() {
     
         #ON VERIFIE SI LA LISTE DES MISE A JOUR EST VIDE
         if [ -z "$liste_maj" ]; then
-        #AUCUNE MISE A JOUR
+        #AUCUNE MAJ
         nb_maj=0
     
     else
@@ -438,7 +435,7 @@ afficher_mises_a_jour_manquantes() {
 afficher_applications_installees(){
         #ENTETE
         afficher_entete
-        # LE TITRE
+        #TITRE
         echo "  APPLICATIONS INSTALLEES"
         echo ""
     
@@ -655,11 +652,9 @@ activer_pare_feu() {
             fi
             echo ""
             read -p "APPUYEZ SUR [ENTREE] POUR CONTINUER"
-            #ON RESTE DANS LE MENU PARE-FEU
             activer_pare_feu
             ;;
         Q|q)
-            #SI LUTILISATEUR VEUT QUITTER ON RETOURNE AU MENU RESEAU
             menu_reseau
             ;;
         *)
@@ -774,11 +769,11 @@ afficher_utilisation_ram() {
     
     #ENTETE
     afficher_entete
-    #TITRE DE LA FONCTION
+    #TITRE 
     echo "  UTILISATION DE LA MEMOIRE RAM"
     echo ""
     
-        #ON ENREGISTRE LA CONSULTATION DANS LE LOG
+        #LOG
         sauvegarder_log "Consultation_UtilisationRAM"
     
     #ON PREND LES INFORMATIONS DE LA RAM
@@ -812,7 +807,7 @@ afficher_utilisation_ram() {
 ####################################################################
 ###############################################################
 redemarrer_machine() {
-    # AFFICHAGE DE L'ENTETE
+    #ENTETE
     afficher_entete
     echo "  REDEMARRAGE DE LA MACHINE"
     echo ""
@@ -855,7 +850,7 @@ executer_script_distant() {
     # DEMANDE DU CHEMIN DU SCRIPT A EXECUTER
     read -p "CHEMIN COMPLET DU SCRIPT A EXECUTER (Q POUR QUITTER): " CheminScript
     if [ "$CheminScript" = "q" ] || [ "$CheminScript" = "Q" ]; then
-	    # SAUVEGARDE DE LA NAVIGATION DANS LES LOGS
+	#LOGS
         sauvegarder_log "Navigation_Retour"
         # RETOUR AU MENU CONTROLES
         menu_controles
@@ -878,9 +873,9 @@ executer_script_distant() {
         return
     fi
     
-    # ACQUISITION DU MOT DE PASSE ADMINISTRATEUR
+    #MOT DE PASSE ADMINISTRATEUR
     if ! verifier_mot_de_passe_admin "EXECUTER SCRIPT *$CheminScript*"; then
-        # MOT DE PASSE INCORRECT, ON RELANCE LA FONCTION
+        # MOT DE PASSE INCORRECT ON RELANCE LA FONCTION
         executer_script_distant
         return
     fi
@@ -888,10 +883,9 @@ executer_script_distant() {
     # DEMANDE DE CONFIRMATION AVANT EXECUTION DU SCRIPT
     read -p "EXECUTER LE SCRIPT *$CheminScript* ? [O/N]: " Confirm
     if [ "$Confirm" != "O" ] && [ "$Confirm" != "o" ]; then
-        # ON NE CONFIRME PAS, ANNULATION DE L'EXECUTION
+        # ON NE CONFIRME PAS ANNULATION DE L'EXECUTION
         echo -e "${GRIS}EXECUTION ANNULEE${RESET}"
         read -p "APPUYEZ SUR [ENTREE] POUR CONTINUER"
-        # RETOUR AU MENU CONTROLES
         menu_controles
         return
     fi
@@ -899,7 +893,7 @@ executer_script_distant() {
     echo ""
     echo -e "${GRIS}EXECUTION DU SCRIPT EN COURS...${RESET}"
     echo ""
-    # ENTRETIEN DE L'ACTION DANS LES LOGS
+    #lOGS
     sauvegarder_log "Action_ExecutionScript_$CheminScript"
     # EXECUTION DU SCRIPT AVEC ELEVATION DE PRIVILEGES
     echo "$MOT_DE_PASSE_ADMIN" | sudo -S bash "$CheminScript" 2>/dev/null
@@ -913,7 +907,6 @@ executer_script_distant() {
     if [ "$Continuer" = "O" ] || [ "$Continuer" = "o" ]; then
         executer_script_distant
     else
-        # RETOUR AU MENU CONTROLES
         menu_controles
     fi
 }
@@ -926,13 +919,12 @@ ouvrir_console_distante() {
     echo ""
     echo -e "${GRIS}TAPEZ *EXIT* POUR REVENIR AU MENU${RESET}"
     echo ""
-    # ON SAUVEGARDE L'ACTION D'OUVERTURE DANS LES LOGS
+    #LOGS
     sauvegarder_log "Action_OuvertureConsole"
-    # ON LANCE UN NOUVEAU SHELL
+    #ON LANCE UN NOUVEAU SHELL
     bash
-    # ON SAUVEGARDE L'ACTION DE FERMETURE DANS LES LOGS
+    #LOGS
     sauvegarder_log "Action_FermetureConsole"
-        # RETOUR AU MENU CONTROLES
     menu_controles
 }
 ####################################################################
@@ -976,7 +968,7 @@ afficher_permissions_utilisateur() {
         return
     fi
     
-    #ON ENREGISTRE LA CONSULTATION DANS LE LOG
+    #LOG
     sauvegarder_log "Consultation_Permissions_$Chemin"
     
     echo ""
