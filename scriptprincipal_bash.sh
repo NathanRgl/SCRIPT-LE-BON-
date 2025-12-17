@@ -362,7 +362,7 @@ recuperer_nom_machine() {
 ##################################################################################
 #                     FONCTION POUR SCANNER LE RESEAU                            #
 ##################################################################################
-#ON PING DE 1 A 254 POUR TROUVER LES MACHINES ALLUMEES AVEC LEUR OS ET LEUR NOM
+#ON PING DE 5 A 30 POUR TROUVER LES MACHINES ALLUMEES AVEC LEUR OS ET LEUR NOM
 scanner_reseau() {
     #ON VIDE LE TABLEAU DES ADRESSES IP
     liste_ip=()
@@ -376,7 +376,7 @@ scanner_reseau() {
     > "$fichier_noms"
 
     #ON PARCOURT TOUTES LES ADRESSES 
-    for i in {1..254}; do
+    for i in {5..30}; do
         #ON FABRIQUE LADRESSE IP COMPLETE AVEC LE NUMERO
         local ip="${ip_reseau}${i}"
 
