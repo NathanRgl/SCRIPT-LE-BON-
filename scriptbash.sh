@@ -153,23 +153,25 @@ afficher_entete() {
         AdresseIP=$(hostname -I | cut -d' ' -f1)
     fi
     
-    #LARGEUR TOTALE DE LA BANNIERE
-    local largeur=56
+    #LARGEUR DU CONTENU ENTRE LES DEUX # (54 - 2 = 52)
+    local largeur=52
     
     #ON CALCULE LES ESPACES POUR CENTRER LE NOM
     local len_nom=${#NomMachine}
-    local espaces_nom=$(( (largeur - len_nom) / 2 ))
-    local padding_nom=$(printf '%*s' "$espaces_nom" '')
+    local total_espaces_nom=$(( largeur - len_nom ))
+    local padding_gauche_nom=$(( total_espaces_nom / 2 ))
+    local padding_droite_nom=$(( total_espaces_nom - padding_gauche_nom ))
     
     #ON CALCULE LES ESPACES POUR CENTRER LIP
     local len_ip=${#AdresseIP}
-    local espaces_ip=$(( (largeur - len_ip) / 2 ))
-    local padding_ip=$(printf '%*s' "$espaces_ip" '')
+    local total_espaces_ip=$(( largeur - len_ip ))
+    local padding_gauche_ip=$(( total_espaces_ip / 2 ))
+    local padding_droite_ip=$(( total_espaces_ip - padding_gauche_ip ))
     
     #BANNIERE BLEU-BLANC-ROUGE
     echo -e "${BLEU}####################${BLANC}##############${ROUGE}####################${RESET}"
-    echo -e "${BLEU}#${RESET}${padding_nom}${BLANC}${NomMachine}${RESET}${padding_nom}${ROUGE}#${RESET}"
-    echo -e "${BLEU}#${RESET}${padding_ip}${BLANC}${AdresseIP}${RESET}${padding_ip}${ROUGE}#${RESET}"
+    printf "${BLEU}#${RESET}%*s${BLANC}%s${RESET}%*s${ROUGE}#${RESET}\n" "$padding_gauche_nom" "" "$NomMachine" "$padding_droite_nom" ""
+    printf "${BLEU}#${RESET}%*s${BLANC}%s${RESET}%*s${ROUGE}#${RESET}\n" "$padding_gauche_ip" "" "$AdresseIP" "$padding_droite_ip" ""
     echo -e "${BLEU}####################${BLANC}##############${ROUGE}####################${RESET}"
     echo ""
 }
