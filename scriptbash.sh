@@ -635,8 +635,8 @@ activer_pare_feu() {
         1)
             #ON DEMANDE LE MOT DE PASSE ADMIN POUR ACTIVER
             if ! verifier_mot_de_passe_admin "ACTIVER LE PARE-FEU"; then
-                #SI LE MOT DE PASSE EST MAUVAIS DONC ON RETOURNE AU MENU
-                menu_reseau
+                #SI LE MOT DE PASSE EST MAUVAIS ON RESTE DANS LE MENU PARE-FEU
+                activer_pare_feu
                 return
             fi
             
@@ -655,18 +655,20 @@ activer_pare_feu() {
             fi
             echo ""
             read -p "APPUYEZ SUR [ENTREE] POUR CONTINUER"
+            #ON RESTE DANS LE MENU PARE-FEU
+            activer_pare_feu
             ;;
         Q|q)
-            #SI LUTILISATEUR VEUT QUITTER
+            #SI LUTILISATEUR VEUT QUITTER ON RETOURNE AU MENU RESEAU
+            menu_reseau
             ;;
         *)
-            #SI CHOIX INVALIDE
+            #SI CHOIX INVALIDE ON RESTE DANS LE MENU PARE-FEU
             echo -e "${ROUGE}CHOIX INVALIDE${RESET}"
             sleep 1
+            activer_pare_feu
             ;;
     esac
-    
-    menu_reseau
 }
 ####################################################################
 #                        FONCTIONS SYSTEME                         #
