@@ -137,28 +137,27 @@ verifier_mot_de_passe_admin() {
 ####################################################################
 #                          FONCTION ENTETE                         #
 ####################################################################
-#FONCTION QUI AFFICHE L ENTETE AVEC LE NOM DE LA MACHINE ET L IP
+#FONCTION QUI AFFICHE LENTETE AVEC NOM MACHINE + IP
 afficher_entete() {
-    #ON EFFACE L ECRAN POUR UN AFFICHAGE PROPRE
     clear
-
-    #ON RECUPERE LE NOM DE LA MACHINE
-    NomMachine=$(hostname)
-
-    #ON RECUPERE L ADRESSE IP QUI COMMENCE PAR 172.16.20
-    AdresseIP=$(hostname -I | tr ' ' '\n' | grep "^172.16.20" | head -n1)
-
+    
+    #NOM DE LA MACHINE
+    local NomMachine=$(hostname)
+    
+    #ON RECUPERE ADRESSE IP QUI COMMENCE PAR 172.16.20
+    local AdresseIP=$(hostname -I | tr ' ' '\n' | grep "^172.16.20" | head -n1)
+    
     #ON REGARDE SI ON A TROUVE UNE ADRESSE IP
     if [ -z "$AdresseIP" ]; then
         #ON NA PAS TROUVE DONC ON PREND LA PREMIERE IP DISPONIBLE
         AdresseIP=$(hostname -I | cut -d' ' -f1)
     fi
-
-    #ON AFFICHE LA BANNIERE EN BLEU BLANC ROUGE
-    echo -e "${BLEU}####################${BLANC}##############${ROUGE}####################${RESET}"
-    echo -e "${BLEU}#${RESET}                      ${BLANC}$NomMachine${RESET}                      ${ROUGE}#${RESET}"
-    echo -e "${BLEU}#${RESET}                    ${BLANC}$AdresseIP${RESET}                    ${ROUGE}#${RESET}"
-    echo -e "${BLEU}####################${BLANC}##############${ROUGE}####################${RESET}"
+    
+    #BANNIERE BLEU-BLANC-ROUGE
+    echo -e "${BLEU}#################${BLANC}####################${ROUGE}#################${RESET}"
+    echo -e "${BLEU}#${RESET}                    ${NomMachine}                    ${ROUGE}#${RESET}"
+    echo -e "${BLEU}#${RESET}                  ${AdresseIP}                  ${ROUGE}#${RESET}"
+    echo -e "${BLEU}#################${BLANC}####################${ROUGE}#################${RESET}"
     echo ""
 }
 
