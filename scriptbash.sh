@@ -139,25 +139,37 @@ verifier_mot_de_passe_admin() {
 ####################################################################
 #FONCTION QUI AFFICHE LENTETE AVEC NOM MACHINE + IP
 afficher_entete() {
-  
-      clear
-
+    clear
+    
     #NOM DE LA MACHINE
-    NomMachine=$(hostname)
-
+    local NomMachine=$(hostname)
+    
     #ON RECUPERE ADRESSE IP QUI COMMENCE PAR 172.16.20
-    AdresseIP=$(hostname -I | tr ' ' '\n' | grep "^172.16.20" | head -n1)
-
+    local AdresseIP=$(hostname -I | tr ' ' '\n' | grep "^172.16.20" | head -n1)
+    
     #ON REGARDE SI ON A TROUVE UNE ADRESSE IP
     if [ -z "$AdresseIP" ]; then
         #ON NA PAS TROUVE DONC ON PREND LA PREMIERE IP DISPONIBLE
         AdresseIP=$(hostname -I | cut -d' ' -f1)
     fi
-
-    #OANNIERE BLEU-BLANC-ROUGE
+    
+    #LARGEUR TOTALE DE LA BANNIERE
+    local largeur=56
+    
+    #ON CALCULE LES ESPACES POUR CENTRER LE NOM
+    local len_nom=${#NomMachine}
+    local espaces_nom=$(( (largeur - len_nom) / 2 ))
+    local padding_nom=$(printf '%*s' "$espaces_nom" '')
+    
+    #ON CALCULE LES ESPACES POUR CENTRER LIP
+    local len_ip=${#AdresseIP}
+    local espaces_ip=$(( (largeur - len_ip) / 2 ))
+    local padding_ip=$(printf '%*s' "$espaces_ip" '')
+    
+    #BANNIERE BLEU-BLANC-ROUGE
     echo -e "${BLEU}####################${BLANC}##############${ROUGE}####################${RESET}"
-    echo -e "${BLEU}#${RESET}                      ${BLANC}$NomMachine${RESET}                      ${ROUGE}#${RESET}"
-    echo -e "${BLEU}#${RESET}                    ${BLANC}$AdresseIP${RESET}                    ${ROUGE}#${RESET}"
+    echo -e "${BLEU}#${RESET}${padding_nom}${BLANC}${NomMachine}${RESET}${padding_nom}${ROUGE}#${RESET}"
+    echo -e "${BLEU}#${RESET}${padding_ip}${BLANC}${AdresseIP}${RESET}${padding_ip}${ROUGE}#${RESET}"
     echo -e "${BLEU}####################${BLANC}##############${ROUGE}####################${RESET}"
     echo ""
 }
