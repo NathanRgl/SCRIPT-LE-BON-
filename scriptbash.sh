@@ -137,41 +137,27 @@ verifier_mot_de_passe_admin() {
 ####################################################################
 #                          FONCTION ENTETE                         #
 ####################################################################
-#FONCTION QUI AFFICHE LENTETE AVEC NOM MACHINE + IP
+#FONCTION QUI AFFICHE L ENTETE AVEC LE NOM DE LA MACHINE ET L IP
 afficher_entete() {
+    #ON EFFACE L ECRAN POUR UN AFFICHAGE PROPRE
     clear
-    
-    #NOM DE LA MACHINE
-    local NomMachine=$(hostname)
-    
-    #ON RECUPERE ADRESSE IP QUI COMMENCE PAR 172.16.20
-    local AdresseIP=$(hostname -I | tr ' ' '\n' | grep "^172.16.20" | head -n1)
-    
+
+    #ON RECUPERE LE NOM DE LA MACHINE
+    NomMachine=$(hostname)
+
+    #ON RECUPERE L ADRESSE IP QUI COMMENCE PAR 172.16.20
+    AdresseIP=$(hostname -I | tr ' ' '\n' | grep "^172.16.20" | head -n1)
+
     #ON REGARDE SI ON A TROUVE UNE ADRESSE IP
     if [ -z "$AdresseIP" ]; then
         #ON NA PAS TROUVE DONC ON PREND LA PREMIERE IP DISPONIBLE
         AdresseIP=$(hostname -I | cut -d' ' -f1)
     fi
-    
-    #LARGEUR DU CONTENU ENTRE LES DEUX # (54 - 2 = 52)
-    local largeur=52
-    
-    #ON CALCULE LES ESPACES POUR CENTRER LE NOM
-    local len_nom=${#NomMachine}
-    local total_espaces_nom=$(( largeur - len_nom ))
-    local padding_gauche_nom=$(( total_espaces_nom / 2 ))
-    local padding_droite_nom=$(( total_espaces_nom - padding_gauche_nom ))
-    
-    #ON CALCULE LES ESPACES POUR CENTRER LIP
-    local len_ip=${#AdresseIP}
-    local total_espaces_ip=$(( largeur - len_ip ))
-    local padding_gauche_ip=$(( total_espaces_ip / 2 ))
-    local padding_droite_ip=$(( total_espaces_ip - padding_gauche_ip ))
-    
-    #BANNIERE BLEU-BLANC-ROUGE
+
+    #ON AFFICHE LA BANNIERE EN BLEU BLANC ROUGE
     echo -e "${BLEU}####################${BLANC}##############${ROUGE}####################${RESET}"
-    printf "${BLEU}#${RESET}%*s${BLANC}%s${RESET}%*s${ROUGE}#${RESET}\n" "$padding_gauche_nom" "" "$NomMachine" "$padding_droite_nom" ""
-    printf "${BLEU}#${RESET}%*s${BLANC}%s${RESET}%*s${ROUGE}#${RESET}\n" "$padding_gauche_ip" "" "$AdresseIP" "$padding_droite_ip" ""
+    echo -e "${BLEU}#${RESET}                      ${BLANC}$NomMachine${RESET}                      ${ROUGE}#${RESET}"
+    echo -e "${BLEU}#${RESET}                    ${BLANC}$AdresseIP${RESET}                    ${ROUGE}#${RESET}"
     echo -e "${BLEU}####################${BLANC}##############${ROUGE}####################${RESET}"
     echo ""
 }
