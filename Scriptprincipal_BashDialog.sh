@@ -1,4 +1,4 @@
-#!/bin/bash
+!/bin/bash
 ##################################################################
 #                 SCRIPT PRINCIPAL AVCE DIALOG                   #
 #                    SCRIPT_BY ANIS FRED EROS                    #
@@ -184,7 +184,6 @@ afficher_chargement() {
         --title "[ CHARGEMENT ]" \
         --infobox "\n  $message\n\n  Veuillez patienter...\n" 7 45
 }
-
 ###############################################################
 #                       FONCTIONS SSH                         #
 ###############################################################
@@ -202,7 +201,6 @@ executer_ssh() {
 afficher_utilisateurs_locaux() {
     executer_ssh "cat /etc/passwd | grep '/home' | cut -d':' -f1 | tr '\n' ' ' | sed 's/ / | /g' | sed 's/ | $//'"
 }
-
 ###############################################################
 #                        DETECTION RESEAU                     #
 ###############################################################
@@ -214,7 +212,7 @@ detecter_linux() {
     fi
     return 1
 }
-##################################################################
+#############################################################
 #FONCTION POUR RECUPERE LE NOM D4UNE MACHINE VIA SSH
 recuperer_nom_machine() {
     #ON RECUPERE LADRESSE IP PASSEE EN PARAMETRE
@@ -234,7 +232,7 @@ recuperer_nom_machine() {
         noms_machines["$ip"]="?"
     fi
 }
-##################################################################
+#############################################################
 #FONCTION POUR SCANNE LE RESEAU ET TROUVER LES MACHINES LINUX
 scanner_reseau() {
     #ON REINITIALISE LES TABLEAUX
@@ -356,11 +354,10 @@ scanner_reseau() {
     #SI ON A TROUVE AU MOINS UNE MACHINE
     [ ${#liste_ip[@]} -gt 0 ]
 }
-
 ###############################################################
 #                     FONCTIONS REPERTOIRES                   #
 ###############################################################
-##################################################################
+#############################################################
 #FONCTION POUR CREE UN NOUVEAU REPERTOIRE
 creer_repertoire() {
     while true; do
@@ -405,7 +402,7 @@ creer_repertoire() {
         demander_confirmation "Voulez-vous creer un autre repertoire ?" || return
     done
 }
-##################################################################
+#############################################################
 #FONCTION POUR SUPPRIME UN REPERTOIRE
 supprimer_repertoire() {
     while true; do
@@ -450,12 +447,10 @@ supprimer_repertoire() {
         demander_confirmation "Voulez-vous supprimer un autre repertoire ?" || return
     done
 }
-
 ###############################################################
 #                    FONCTIONS LOGICIELS                      #
 ###############################################################
-
-##################################################################
+#############################################################
 #FONCTION POUR AFFICHE LES APPLICATIONS INSTALLEES
 afficher_applications_installees() {
     afficher_chargement "Recuperation des applications..."
@@ -481,7 +476,7 @@ afficher_applications_installees() {
         afficher_texte "APPLICATIONS INSTALLEES" "$result"
     fi
 }
-##################################################################
+#############################################################
 #FONCTION POUR AFFICHE LES MISES A JOUR CRITIQUES
 afficher_mises_a_jour_manquantes() {
     afficher_chargement "Verification des mises a jour critiques..."
@@ -513,7 +508,6 @@ $liste_maj"
         afficher_texte "MISES A JOUR CRITIQUES" "$result"
     fi
 }
-
 ###############################################################
 #                   FONCTIONS SERVICES                        #
 ###############################################################
@@ -541,7 +535,6 @@ afficher_services_en_cours() {
         afficher_texte "SERVICES EN COURS D'EXECUTION" "$liste_services"
     fi
 }
-
 ###############################################################
 #                      FONCTIONS RESEAU                       #
 ###############################################################
@@ -578,7 +571,7 @@ afficher_config_ip() {
     
     afficher_texte "INFORMATION RESEAU" "$config_ip"
 }
-##################################################################
+#############################################################
 #FONCTION POUR ACTIVER LE PARE-FEU
 activer_pare_feu() {
     while true; do
@@ -624,7 +617,6 @@ activer_pare_feu() {
         esac
     done
 }
-
 ###############################################################
 #                     FONCTIONS SYSTEME                       #
 ###############################################################
@@ -654,7 +646,6 @@ afficher_utilisation_ram() {
     
     afficher_texte "UTILISATION DE LA MEMOIRE RAM" "$result"
 }
-
 ###############################################################
 #                    FONCTIONS CONTROLES                      #
 ###############################################################
@@ -679,7 +670,7 @@ redemarrer_machine() {
     
     afficher_info "REDEMARRAGE EN COURS..." "REDEMARRAGE"
 }
-##################################################################
+#############################################################
 #FONCTION POUR EXECUTE UN SCRIPT
 executer_script_distant() {
     while true; do
@@ -730,7 +721,6 @@ ouvrir_console_distante() {
     #ON LANCE UN NOUVEAU SHELL BASH VIA SSH
     ssh -t "${machine_user}@${machine_ip}" 'clear; echo ""; echo "  Machine : $(hostname)"; echo "  IP : '"$machine_ip"'"; echo ""; echo "  Tapez *exit* pour revenir au menu"; echo ""; exec bash'
 }
-
 ###############################################################
 #                   FONCTIONS UTILISATEURS                    #
 ###############################################################
@@ -770,7 +760,7 @@ $permissions"
         demander_confirmation "Voulez-vous consulter un autre chemin ?" || return
     done
 }
-##################################################################
+#############################################################
 #FONCTION POUR CREE UN NOUVEL UTILISATEUR
 creer_utilisateur_local() {
     while true; do
@@ -911,7 +901,7 @@ modifier_mot_de_passe_utilisateur() {
         demander_confirmation "Voulez-vous modifier un autre mot de passe ?" || return
     done
 }
-##################################################################
+#############################################################
 #FONCTION POUR DESACTIVE UN COMPTE UTILISATEUR
 desactiver_utilisateur_local() {
     while true; do
@@ -963,7 +953,7 @@ desactiver_utilisateur_local() {
         demander_confirmation "Voulez-vous desactiver un autre utilisateur ?" || return
     done
 }
-##################################################################
+#############################################################
 #FONCTION POUR SUPPRIME UN COMPTE UTILISATEUR
 supprimer_utilisateur_local() {
     while true; do
@@ -1016,7 +1006,7 @@ supprimer_utilisateur_local() {
         demander_confirmation "Voulez-vous supprimer un autre utilisateur ?" || return
     done
 }
-##################################################################
+#############################################################
 #FONCTION POUR AFFICHE LES GROUPES DUN UTILISATEUR
 afficher_groupes_utilisateur() {
     while true; do
@@ -1057,7 +1047,7 @@ afficher_groupes_utilisateur() {
         demander_confirmation "Voulez-vous consulter un autre utilisateur ?" || return
     done
 }
-##################################################################
+#############################################################
 #FONCTION POUR AJOUTE UN UTILISATEUR AU GROUPE SUDO
 ajouter_utilisateur_groupe_admin() {
     while true; do
@@ -1110,7 +1100,7 @@ ajouter_utilisateur_groupe_admin() {
         demander_confirmation "Voulez-vous ajouter un autre utilisateur ?" || return
     done
 }
-##################################################################
+#############################################################
 #FONCTION POUR AJOUTE UN UTILISATEUR A UN GROUPE
 ajouter_utilisateur_groupe() {
     while true; do
@@ -1194,7 +1184,6 @@ ajouter_utilisateur_groupe() {
         demander_confirmation "Voulez-vous ajouter un autre utilisateur ?" || return
     done
 }
-
 ###############################################################
 #                           MENUS                             #
 ###############################################################
@@ -1220,7 +1209,7 @@ menu_repertoires() {
         esac
     done
 }
-##################################################################
+#############################################################
 #FONCTION POUR AFFICHE LE MENU DES LOGICIELS
 menu_logiciels() {
     while true; do
@@ -1242,7 +1231,7 @@ menu_logiciels() {
         esac
     done
 }
-##################################################################
+#############################################################
 #FONCTION POUR AFFICHE LE MENU DES SERVICES
 menu_services() {
     while true; do
@@ -1261,7 +1250,7 @@ menu_services() {
         esac
     done
 }
-##################################################################
+#############################################################
 #FONCTION POUR AFFICHE LE MENU RESEAU
 menu_reseau() {
     while true; do
@@ -1285,7 +1274,7 @@ menu_reseau() {
         esac
     done
 }
-##################################################################
+#############################################################
 #FONCTION POUR AFFICHE LE MENU SYSTEME
 menu_systeme() {
     while true; do
@@ -1307,7 +1296,7 @@ menu_systeme() {
         esac
     done
 }
-##################################################################
+#############################################################
 #FONCTION POUR AFFICHE LE MENU DES CONTROLES
 menu_controles() {
     while true; do
@@ -1331,7 +1320,7 @@ menu_controles() {
         esac
     done
 }
-##################################################################
+#############################################################
 #FONCTION POUR AFFICHE LE MENU DES UTILISATEURS
 menu_utilisateurs() {
     while true; do
@@ -1365,7 +1354,7 @@ menu_utilisateurs() {
         esac
     done
 }
-##################################################################
+#############################################################
 #FONCTION POUR AFFICHE LE MENU DE GESTION DE LA MACHINE
 menu_gestion_machine() {
     while true; do
@@ -1395,7 +1384,7 @@ menu_gestion_machine() {
         esac
     done
 }
-##################################################################
+#############################################################
 #FONCTION POUR AFFICHE LE MENU CLIENT 
 menu_client() {
     while true; do
@@ -1417,7 +1406,7 @@ menu_client() {
         esac
     done
 }
-##################################################################
+#############################################################
 #FONCTION POUR AFFICHE LA LISTE DES MACHINES DISPONIBLES
 afficher_liste_machines() {
     while true; do
@@ -1460,7 +1449,7 @@ afficher_liste_machines() {
         esac
     done
 }
-##################################################################
+#############################################################
 #FONCTION POUR AFFICHE LE MENU PRINCIPAL
 menu_principal() {
     while true; do
@@ -1509,22 +1498,19 @@ menu_principal() {
         esac
     done
 }
-
-##################################################################
+#############################################################
 #FONCTION POUR SUPPRIMER LES FICHIERS TEMPORAIRES
 nettoyer() {
     #ON SUPPRIME TOUS LES FICHIERS TEMPORAIRES CREES PAR LE SCRIPT
     rm -f "$fichier_temp" "$fichier_noms" "$fichier_result" "$DIALOGRC" 
     clear
 }
-
 trap nettoyer EXIT SIGINT SIGTERM
-
 ###############################################################
 #                DEMARRAGE DU SCRIPT                          #
 ###############################################################
 
-##################################################################
+#############################################################
 #ON VERIFIE QUE DIALOG EST INSTALLE
 if ! command -v dialog &>/dev/null; then
     echo ""
