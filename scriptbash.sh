@@ -570,14 +570,14 @@ afficher_config_ip() {
         #ON REGARDE SI LINTERFACE A UNE ADRESSE IP
         if [ -n "$IP" ]; then
             #ON AJOUTE LINTERFACE ET L'IP A LA CONFIGURATION
-            config_ip+="INTERFACE: $iface - IP: $IP"
+            config_ip+="INTERFACE: $iface - IP: $IP\n"
         fi
     done
     
     #ON RECUPERE LADRESSE DE LA PASSERELLE
     Passerelle=$(ip route | grep default | tr -s ' ' | cut -d' ' -f3)
     #ON AJOUTE LA PASSERELLE A LA CONFIGURATION
-    config_ip+="PASSERELLE: $Passerelle"
+    config_ip+="\nPASSERELLE: $Passerelle"
     
     #NOMBRE DE LIGNES
     nb_lignes=$(echo "$config_ip" | wc -l)
@@ -588,7 +588,7 @@ afficher_config_ip() {
     #ON REGARDE SI LA CONFIGURATION EST PETITE OU GRANDE
     if [ "$nb_lignes" -le 10 ]; then
         # PETITE DONC ON LAFFICHE
-        echo "$config_ip"
+        echo -e "$config_ip"
     else
         #GRANDE DONC ON AFFICHE JUSTE UN MESSAGE
         echo -e "${GRIS}CONFIGURATION IP ENREGISTREE${RESET}"
