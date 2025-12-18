@@ -479,7 +479,6 @@ function AfficherConfigIP {
         Write-Host "  PASSERELLE: $passerelle"
     }
     Write-Host ""
-    Write-Host "(CONFIGURATION COMPLETE ENREGISTREE)"
     Write-Host ""
     Read-Host "APPUYEZ SUR [ENTREE] POUR CONTINUER"
     #ON RETOURNE AU MENU RESEAU
@@ -705,37 +704,29 @@ function AfficherInfoSysteme {
 }
 ##############################################################
 function AfficherUtilisationRAM {
-    #ENTETE
     AfficherEntete
     Write-Host "  UTILISATION DE LA MEMOIRE RAM"
     Write-Host ""
     
-    #ENREGISTRER DANS LOG
     SauvegarderLog "Consultation_UtilisationRAM"
     
     try {
-        # RECUPERE LES INFORMATIONS SYSTEMES
         $os = Get-CimInstance Win32_OperatingSystem
+        $totalRAM = [math]::Round($os.TotalVisibleMemorySize / 1MB, 2)
+        $ramLibre = [math]::Round($os.FreePhysicalMemory / 1MB, 2)
+        $ramUtilisee = [math]::Round($totalRAM - $ramLibre, 2)
         
-        # Récupération des valeurs brutes en Ko
-        $totalRAM = $os.TotalVisibleMemorySize
-        $ramLibre = $os.FreePhysicalMemory
-        $ramUtilisee = $totalRAM - $ramLibre
+        $ram_info = "RAM TOTALE: $totalRAM GO`nRAM UTILISEE: $ramUtilisee GO`nRAM LIBRE: $ramLibre GO"
         
-        #Construction de la chaîne contenant les informations RAM
-        $ram_info = "RAM TOTALE: $totalRAM KO`nRAM UTILISEE: $ramUtilisee KO`nRAM LIBRE: $ramLibre KO"
-        
-        #ENREGISTRER DANS FICHIER INFO
         SauvegarderInfo "=== UTILISATION RAM === $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')`n$ram_info"
         
-        #AFFICHAGE DES INFORMATIONS RAM
-        Write-Host "RAM TOTALE: $totalRAM KO"
-        Write-Host "RAM UTILISEE: $ramUtilisee KO"
-        Write-Host "RAM LIBRE: $ramLibre KO"
+        Write-Host "RAM TOTALE: $totalRAM GO"
+        Write-Host "RAM UTILISEE: $ramUtilisee GO"
+        Write-Host "RAM LIBRE: $ramLibre GO"
     } catch {
-        #SINON AFFICHER MESSAGE ERREUR
         Write-Host "IMPOSSIBLE DE RECUPERER LES INFORMATIONS RAM" -ForegroundColor DarkGray
     }
+    
     Write-Host ""
     Read-Host "APPUYEZ SUR [ENTREE] POUR CONTINUER"
     MenuSysteme
