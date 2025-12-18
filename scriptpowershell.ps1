@@ -731,6 +731,41 @@ function AfficherUtilisationRAM {
     Read-Host "APPUYEZ SUR [ENTREE] POUR CONTINUER"
     MenuSysteme
 }
+###################################################################
+function AfficherStatutUAC {
+    AfficherEntete
+    Write-Host "  STATUT DE L'UAC"
+    Write-Host ""
+    
+    SauvegarderLog "Consultation_StatutUAC"
+    
+    try {
+        $uac = Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "EnableLUA" -ErrorAction SilentlyContinue
+        $tokenFilter = Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "LocalAccountTokenFilterPolicy" -ErrorAction SilentlyContinue
+        
+        if ($uac.EnableLUA -eq 1) {
+            Write-Host "UAC: ACTIVE" -ForegroundColor Green
+        } else {
+            Write-Host "UAC: DESACTIVE" -ForegroundColor Red
+        }
+        
+        if ($tokenFilter.LocalAccountTokenFilterPolicy -eq 1) {
+            Write-Host "ACCES ADMIN DISTANT: AUTORISE" -ForegroundColor Green
+        } else {
+            Write-Host "ACCES ADMIN DISTANT: BLOQUE" -ForegroundColor Red
+        }
+        
+        $uac_info = "ENABLELUA: $($uac.EnableLUA)`nLOCALACCOUNTTOKENFILTERPOLICY: $($tokenFilter.LocalAccountTokenFilterPolicy)"
+        SauvegarderInfo "=== STATUT UAC === $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')`n$uac_info"
+        
+    } catch {
+        Write-Host "IMPOSSIBLE DE RECUPERER LE STATUT UAC" -ForegroundColor DarkGray
+    }
+    
+    Write-Host ""
+    Read-Host "APPUYEZ SUR [ENTREE] POUR CONTINUER"
+    MenuSysteme
+}
 ###############################################################
 #                  FONCTIONS CONTROLES                        #
 ###############################################################
