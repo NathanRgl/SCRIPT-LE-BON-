@@ -1444,6 +1444,71 @@ function AfficherGroupesUtilisateur {
         MenuUtilisateurs
     }
 }
+##############################################################
+function AfficherPermissionsUtilisateur {
+    AfficherEntete
+    Write-Host "  DROITS ET PERMISSIONS SUR FICHIER"
+    Write-Host ""
+    $Chemin = Read-Host "CHEMIN DU FICHIER OU DOSSIER (Q POUR QUITTER)"
+    if ($Chemin -eq "q" -or $Chemin -eq "Q") {
+        SauvegarderLog "Navigation_Retour"
+        MenuUtilisateurs
+        return
+    }
+    if ([string]::IsNullOrEmpty($Chemin)) {
+        Write-Host "CHEMIN NON SPECIFIE"
+        Read-Host "APPUYEZ SUR [ENTREE] POUR CONTINUER"
+        AfficherPermissionsUtilisateur
+        return
+    }
+    if (-not (Test-Path $Chemin)) {
+        Write-Host "LE CHEMIN *$Chemin* N'EXISTE PAS" -ForegroundColor Red
+        Read-Host "APPUYEZ SUR [ENTREE] POUR CONTINUER"
+        AfficherPermissionsUtilisateur
+        return
+    }
+    
+    SauvegarderLog "Consultation_Permissions_$Chemin"
+    
+    Write-Host ""
+    Write-Host "PERMISSIONS:"
+    Write-Host ""
+    
+    #SI C'EST UN DOSSIER ON LISTE LE CONTENU AVEC LES PERMISSIONS
+    if (Test-Path $Chemin -PathType Container) {
+        $items = Get-ChildItem $Chemin -Force
+        foreach ($item in $items) {
+            $acl = Get-Acl $item.FullName
+            $type = if ($item.PSIsContainer) { "[DOSSIER]" } else { "[FICHIER]" }
+            Write-Host "$type $($item.Name)"
+            Write-Host "  PROPRIETAIRE: $($acl.Owner)"
+            $acl.Access | ForEach-Object {
+                Write-Host "  $($_.IdentityReference) - $($_.FileSystemRights) - $($_.AccessControlType)"
+            }
+            Write-Host ""
+        }
+        $permissions = $items | ForEach-Object { "$($_.Name) - $($(Get-Acl $_.FullName).Owner)" } | Out-String
+    } else {
+        #SI C'EST UN FICHIER ON AFFICHE SES PERMISSIONS
+        $acl = Get-Acl $Chemin
+        Write-Host "PROPRIETAIRE: $($acl.Owner)"
+        Write-Host ""
+        $acl.Access | ForEach-Object {
+            Write-Host "$($_.IdentityReference) - $($_.FileSystemRights) - $($_.AccessControlType)"
+        }
+        $permissions = $acl.Access | Select-Object IdentityReference, FileSystemRights, AccessControlType | Out-String
+    }
+    
+    SauvegarderInfo "=== PERMISSIONS === $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')`nCHEMIN: $Chemin`n$permissions"
+    
+    Write-Host ""
+    $Continuer = Read-Host "VOULEZ-VOUS CONSULTER UN AUTRE CHEMIN ? [O/N]"
+    if ($Continuer -eq "O" -or $Continuer -eq "o") {
+        AfficherPermissionsUtilisateur
+    } else {
+        MenuUtilisateurs
+    }
+}
 ###############################################################
 #                         MENUS                               #
 ###############################################################
