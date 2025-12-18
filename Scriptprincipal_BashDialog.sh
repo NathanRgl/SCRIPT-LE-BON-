@@ -9,17 +9,12 @@
 export LANG=C.UTF-8
 export LC_ALL=C.UTF-8
 
-#FRANCISATION DES BOUTONS DIALOG
 export DIALOG_OK="OK"
 export DIALOG_CANCEL="Retour"
 export DIALOG_HELP="Aide"
 export DIALOG_EXTRA="Extra"
 export DIALOG_ITEM_HELP="Aide"
 export DIALOG_EXIT="Retour"
-
-###############################################################
-#          CONFIGURATION THEME DE DIALOG                      #      
-###############################################################
 
 export DIALOGRC="/tmp/dialogrc_$$"
 echo "screen_color = (WHITE,MAGENTA,ON)
@@ -49,51 +44,24 @@ check_selected_color = (WHITE,MAGENTA,ON)
 use_shadow = ON
 use_colors = ON" > "$DIALOGRC"
 
-###############################################################
-#                        CONFIGURATION                        #
-###############################################################
-
-#RESEAU A SCANNER
 ip_reseau="172.16.20."
-
-#PORT SSH
 export port_ssh="22222"
-
-#DELAI PING
 delai_ping=1
-
-#FICHIERS_TEMPORAIRES
 fichier_temp="/tmp/scriptbash_machines_$$.txt"
 fichier_noms="/tmp/scriptbash_noms_$$.txt"
 fichier_result="/tmp/scriptbash_result_$$.txt"
-
-#UTILISATEUR 
 export utilisateur_linux="wilder"
-
-#IP LOCALE POUR NE PAS L4AFFICHER 
 local_ip=""
-
-#TABLEAUX
 declare -a liste_ip
 declare -A noms_machines
-
-#MACHINE CONNECTEE
 machine_ip=""
 machine_nom=""
 machine_user=""
-
-#DIMENSIONS
 LARGEUR=90
 HAUTEUR=25
 MENU_HAUTEUR=10
-
-#PAS DE BACKTITLE
 BACKTITLE=""
 
-###############################################################
-#                     FONCTIONS DIALOG                        #
-###############################################################
-##############################################################
 #FONCTION POUR AFFICHE UNE INFORMATION
 afficher_info() {
     local titre="${2:-INFORMATION}"
@@ -101,29 +69,29 @@ afficher_info() {
         --title "[ $titre ]" \
         --msgbox "$1" 10 55
 }
-##############################################################
-#FONCTION POUR AFFICHE UNE ERREUR 
+
+#FONCTION POUR AFFICHE UNE ERREUR
 afficher_erreur() {
     dialog --backtitle "$BACKTITLE" \
         --title "[ ERREUR ]" \
         --msgbox "$1" 10 55
 }
-##############################################################
-#FONCTION POUR AFFICHE UN SUCCES 
+
+#FONCTION POUR AFFICHE UN SUCCES
 afficher_succes() {
     dialog --backtitle "$BACKTITLE" \
         --title "[ SUCCES ]" \
         --msgbox "$1" 10 55
 }
-##############################################################
-#FONCTION POUR AFFICHE UN AVERTISSEMENT 
+
+#FONCTION POUR AFFICHE UN AVERTISSEMENT
 afficher_avertissement() {
     dialog --backtitle "$BACKTITLE" \
         --title "[ ATTENTION ]" \
         --msgbox "$1" 10 55
 }
-##############################################################
-#CONFIRMATION O/N
+
+#FONCTION POUR DEMANDER CONFIRMATION O/N
 demander_confirmation() {
     dialog --backtitle "$BACKTITLE" \
         --title "[ CONFIRMATION ]" \
@@ -133,7 +101,7 @@ demander_confirmation() {
         --yesno "$1" 10 55
     return $?
 }
-##############################################################
+
 #FONCTION POUR DEMANDER UNE SAISIE
 demander_saisie() {
     local titre="$1"
@@ -149,7 +117,7 @@ demander_saisie() {
     fi
     return $ret
 }
-##############################################################
+
 #FONCTION POUR DEMANDE UN MDP
 demander_mot_de_passe() {
     local titre="$1"
@@ -166,7 +134,7 @@ demander_mot_de_passe() {
     fi
     return $ret
 }
-##############################################################
+
 #FONCTION POUR AFFICHE DU TEXTE
 afficher_texte() {
     local titre="$1"
@@ -177,33 +145,27 @@ afficher_texte() {
         --exit-label "Retour" \
         --textbox "$fichier_result" $HAUTEUR $LARGEUR
 }
-##############################################################
-#MESSAGE DE CHARGEMENT
+
+#FONCTION POUR AFFICHE UN MESSAGE DE CHARGEMENT
 afficher_chargement() {
     local message="$1"
     dialog --backtitle "$BACKTITLE" \
         --title "[ CHARGEMENT ]" \
         --infobox "\n  $message\n\n  Veuillez patienter...\n" 7 45
 }
-###############################################################
-#                       FONCTIONS SSH                         #
-###############################################################
+
 #FONCTION POUR EXECUTE UNE COMMANDE SSH SUR LA MACHINE DISTANTE
 executer_ssh() {
     local commande="$1"
     ssh -p $port_ssh -o ConnectTimeout=10 -o BatchMode=yes -o StrictHostKeyChecking=no "${machine_user}@${machine_ip}" "$commande" 2>&1 
 }
-###############################################################
-#                 FONCTION AFFICHER UTILISATEURS              #
-###############################################################
-#FONCTION POUR AFFICHE LA LISTE DES UTILISATEURS LOCAUX 
+
+#FONCTION POUR AFFICHE LA LISTE DES UTILISATEURS LOCAUX
 afficher_utilisateurs_locaux() {
     executer_ssh "cat /etc/passwd | grep '/home' | cut -d':' -f1 | tr '\n' ' ' | sed 's/ / | /g' | sed 's/ | $//'"
 }
-###############################################################
-#                        DETECTION RESEAU                     #
-###############################################################
-#DETECTE MACHINE
+
+#FONCTION POUR DETECTE UNE MACHINE LINUX
 detecter_linux() {
     local ip="$1"
     if ssh -p $port_ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no -o BatchMode=yes "${utilisateur_linux}@${ip}" "uname" 2>/dev/null | grep -qi "linux"; then
@@ -211,8 +173,8 @@ detecter_linux() {
     fi
     return 1
 }
-#############################################################
-#FONCTION POUR RECUPERE LE NOM D4UNE MACHINE VIA SSH
+
+#FONCTION POUR RECUPERE LE NOM DUNE MACHINE VIA SSH
 recuperer_nom_machine() {
     local ip="$1"
     local nom=""
@@ -223,35 +185,25 @@ recuperer_nom_machine() {
         noms_machines["$ip"]="?"
     fi
 }
-#############################################################
+
 #FONCTION POUR SCANNE LE RESEAU ET TROUVER LES MACHINES LINUX
 scanner_reseau() {
-    #ON REINITIALISE LES TABLEAUX
     liste_ip=()
     noms_machines=()
-    
-    #VIDE LES FICHIERS TEMPORAIRES
     > "$fichier_temp"
     > "$fichier_noms"
-    
-    #ON RECUPERE LIP LOCALE 
     if [ -z "$local_ip" ]; then
         local_ip=$(hostname -I 2>/dev/null | tr ' ' '\n' | grep "^$ip_reseau" | head -n1)
     fi
-    
-    #PING 
     (
         for i in $(seq 1 254); do
             local ip="${ip_reseau}${i}"
-            
             (
                 ping -c 1 -W "$delai_ping" "$ip" &>/dev/null && echo "$ip" >> "$fichier_temp"
             ) &
-            
             if [ $((i % 50)) -eq 0 ]; then
                 wait
             fi
-            
             local points_num=$(( (i / 20) % 3 ))
             local points=""
             case $points_num in
@@ -259,9 +211,7 @@ scanner_reseau() {
                 1) points=".." ;;
                 2) points="..." ;;
             esac
-            
             local pct=$(( i * 100 / 254 ))
-            
             echo "XXX"
             echo "$pct"
             echo "\nScan du reseau en cours$points\n\nAdresse: $ip"
@@ -271,14 +221,11 @@ scanner_reseau() {
     ) | dialog --backtitle "$BACKTITLE" \
             --title "[ SCAN DU RESEAU ]" \
             --gauge "\nScan du reseau en cours...\n" 10 55 0
-    
-    #DETECTION SSH
     if [ -s "$fichier_temp" ]; then
         local ips_trouvees=()
         while read -r ligne; do
             [ -n "$ligne" ] && ips_trouvees+=("$ligne")
         done < "$fichier_temp"
-        
         for ip in "${ips_trouvees[@]}"; do
             if [ "$ip" != "$local_ip" ]; then
                 if ssh -p $port_ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no -o BatchMode=yes "${utilisateur_linux}@${ip}" "uname" 2>/dev/null | grep -qi "linux"; then
@@ -290,146 +237,93 @@ scanner_reseau() {
             fi
         done
     fi
-    
-    #ON SUPPRIME LES FICHIERS TEMPORAIRES
     rm -f "$fichier_temp" "$fichier_noms"
-    
-    #SI ON A TROUVE AU MOINS UNE MACHINE
     [ ${#liste_ip[@]} -gt 0 ]
 }
-###############################################################
-#                     FONCTIONS REPERTOIRES                   #
-###############################################################
-#############################################################
+
 #FONCTION POUR CREE UN NOUVEAU REPERTOIRE
 creer_repertoire() {
     while true; do
-        #ON DEMANDE LE CHEMIN DU REPERTOIRE A CREER
         local Chemin
         Chemin=$(demander_saisie "CREATION DE REPERTOIRE" "Chemin complet du repertoire a creer :")
-        
-        #ON REGARDE SI LUTILISATEUR VEUT QUITTER
         [ $? -ne 0 ] && return
-        
-        #ON REGARDE SI LE CHEMIN EST VIDE
         if [ -z "$Chemin" ]; then
             afficher_erreur "CHEMIN NON SPECIFIE"
             continue
         fi
-        
-        #ON VERIFIE SI LE REPERTOIRE EXISTE DEJA
         local existe=$(executer_ssh "[ -d '$Chemin' ] && echo 'OUI' || echo 'NON'")
         if [ "$existe" = "OUI" ]; then
             afficher_avertissement "LE REPERTOIRE EXISTE DEJA"
             continue
         fi
-        
-        #ON DEMANDE CONFIRMATION AVANT DE CREER
         demander_confirmation "Confirmer la creation de *$Chemin* ?" || {
             afficher_avertissement "CREATION ANNULEE"
             return
         }
-        
-        #ON CREE LE REPERTOIRE
         afficher_chargement "Creation du repertoire..."
         local result=$(executer_ssh "sudo mkdir -p '$Chemin' 2>&1 && echo 'SUCCES'")
-        
-        #ON VERIFIE QUE LE REPERTOIRE A ETE CREE
         if echo "$result" | grep -q "SUCCES"; then
             afficher_succes "REPERTOIRE CREE AVEC SUCCES"
         else
             afficher_erreur "IMPOSSIBLE DE CREER LE REPERTOIRE"
         fi
-        
-        #ON DEMANDE SI LUTILISATEUR VEUT CREER UN AUTRE REPERTOIRE
         demander_confirmation "Voulez-vous creer un autre repertoire ?" || return
     done
 }
-#############################################################
+
 #FONCTION POUR SUPPRIME UN REPERTOIRE
 supprimer_repertoire() {
     while true; do
-        #ON DEMANDE LE CHEMIN DU REPERTOIRE A SUPPRIMER
         local Chemin
         Chemin=$(demander_saisie "SUPPRESSION DE REPERTOIRE" "Chemin complet du repertoire a supprimer :")
-        
-        #ON REGARDE SI LUTILISATEUR VEUT QUITTER
         [ $? -ne 0 ] && return
-        
-        #ON REGARDE SI LE CHEMIN EST VIDE
         if [ -z "$Chemin" ]; then
             afficher_erreur "CHEMIN NON SPECIFIE"
             continue
         fi
-        
-        #ON VERIFIE SI LE REPERTOIRE EXISTE
         local existe=$(executer_ssh "[ -d '$Chemin' ] && echo 'OUI' || echo 'NON'")
         if [ "$existe" = "NON" ]; then
             afficher_erreur "LE REPERTOIRE N'EXISTE PAS"
             continue
         fi
-        
-        #ON DEMANDE CONFIRMATION AVANT DE SUPPRIMER
         demander_confirmation "Confirmer la suppression de *$Chemin* ?" || {
             afficher_avertissement "SUPPRESSION ANNULEE"
             return
         }
-        
-        #ON SUPPRIME LE REPERTOIRE
         afficher_chargement "Suppression du repertoire..."
         local result=$(executer_ssh "sudo rm -rf '$Chemin' 2>&1 && echo 'SUCCES'")
-        
-        #ON VERIFIE QUE  LE REPERTOIRE A ETE SUPPRIME
         if echo "$result" | grep -q "SUCCES"; then
             afficher_succes "REPERTOIRE SUPPRIME AVEC SUCCES"
         else
             afficher_erreur "IMPOSSIBLE DE SUPPRIMER LE REPERTOIRE"
         fi
-        
-        #ON DEMANDE SI LUTILISATEUR VEUT SUPPRIMER UN AUTRE REPERTOIRE
         demander_confirmation "Voulez-vous supprimer un autre repertoire ?" || return
     done
 }
-###############################################################
-#                    FONCTIONS LOGICIELS                      #
-###############################################################
-#############################################################
+
 #FONCTION POUR AFFICHE LES APPLICATIONS INSTALLEES
 afficher_applications_installees() {
     afficher_chargement "Recuperation des applications..."
-    
-    #ON RECUPERE LA LISTE DES APPLICATIONS
     local liste_apps=$(executer_ssh "dpkg -l 2>/dev/null | grep '^ii' | awk '{print \$2}'")
-    
     if [ -z "$liste_apps" ]; then
         afficher_erreur "Impossible de recuperer les applications"
     else
         afficher_texte "APPLICATIONS INSTALLEES" "$liste_apps"
     fi
 }
-#############################################################
+
 #FONCTION POUR AFFICHE LES MISES A JOUR CRITIQUES
 afficher_mises_a_jour_manquantes() {
     afficher_chargement "Verification des mises a jour critiques..."
-    
-    #ON MET A JOUR LA LISTE DES PAQUETS 
     executer_ssh "sudo apt-get update -qq 2>/dev/null" >/dev/null
-    
-    #ON RECUPERE LA LISTE DES MISES A JOUR DE SECURITE 
     local liste_maj=$(executer_ssh "apt-get -s upgrade 2>/dev/null | grep '^Inst' | grep -i 'security' | awk '{print \$2}'")
-    
-    #SI LA LISTE EST VIDE ON ESSAIE UNE AUTRE 
     if [ -z "$liste_maj" ]; then
         liste_maj=$(executer_ssh "apt list --upgradable 2>/dev/null | grep -i 'security' | cut -d'/' -f1 | grep -v '^Listing'")
     fi
-    
-    #ON COMPTE LE NOMBRE DE MISES A JOUR CRITIQUES
     local nb_maj=0
     if [ -n "$liste_maj" ]; then
         nb_maj=$(echo "$liste_maj" | grep -v "^$" | wc -l)
     fi
-    
-    #ON VERIFIE  SI IL YA DES MISES A JOUR CRITIQUES 
     if [ "$nb_maj" -eq 0 ] || [ -z "$liste_maj" ]; then
         afficher_succes "AUCUNE MISE A JOUR CRITIQUE DISPONIBLE"
     else
@@ -439,45 +333,31 @@ $liste_maj"
         afficher_texte "MISES A JOUR CRITIQUES" "$result"
     fi
 }
-###############################################################
-#                   FONCTIONS SERVICES                        #
-###############################################################
-#############################################################
+
 #FONCTION POUR AFFICHE LES SERVICES EN COURS
 afficher_services_en_cours() {
     afficher_chargement "Recuperation des services..."
-    
-    #ON RECUPERE LA LISTE DES SERVICES EN COURS 
     local liste_services=$(executer_ssh "systemctl list-units --type=service --state=running --no-pager")
-    
     if [ -z "$liste_services" ]; then
         afficher_erreur "Impossible de recuperer les services"
     else
         afficher_texte "SERVICES EN COURS D'EXECUTION" "$liste_services"
     fi
 }
-###############################################################
-#                      FONCTIONS RESEAU                       #
-###############################################################
-#############################################################
+
 #FONCTION POUR AFFICHE LES PORTS OUVERTS
 afficher_ports_ouverts() {
     afficher_chargement "Recuperation des ports ouverts..."
-    
-    #ON RECUPERE LA LISTE DES PORTS OUVERTS 
     local liste_ports=$(executer_ssh "ss -tulnp 2>/dev/null | grep LISTEN")
-    
     if [ -z "$liste_ports" ]; then
         liste_ports="Aucun port en ecoute"
     fi
-    
     afficher_texte "PORTS OUVERTS" "$liste_ports"
 }
-#############################################################
+
 #FONCTION POUR AFFICHE LA CONFIGURATION IP
 afficher_config_ip() {
     afficher_chargement "Recuperation configuration IP..."
-    
     local config_ip=$(executer_ssh "
         for iface in \$(ls /sys/class/net/); do
             IP=\$(ip -4 addr show \$iface 2>/dev/null | grep 'inet ' | tr -s ' ' | cut -d' ' -f3)
@@ -489,46 +369,33 @@ afficher_config_ip() {
         Passerelle=\$(ip route | grep default | tr -s ' ' | cut -d' ' -f3)
         echo \"PASSERELLE: \$Passerelle\"
     ")
-    
     afficher_texte "INFORMATION RESEAU" "$config_ip"
 }
-#############################################################
+
 #FONCTION POUR ACTIVER LE PARE-FEU
 activer_pare_feu() {
     while true; do
-        #ON AFFICHE LE STATUT ACTUEL DU PAREFEU
         afficher_chargement "Verification du pare-feu..."
         local status=$(executer_ssh "systemctl is-active ufw 2>/dev/null")
-        
         local statut_texte=""
         if [ "$status" = "active" ]; then
             statut_texte="STATUT DU PARE-FEU : ACTIF"
         else
             statut_texte="STATUT DU PARE-FEU : INACTIF"
         fi
-        
-        #MENU
         local choix
         choix=$(dialog --backtitle "$BACKTITLE" \
             --title "[ GESTION DU PARE-FEU ]" \
-            --cancel-label "Retour" \
             --cancel-label "Retour" --stdout \
             --menu "\n$statut_texte\n" \
             $HAUTEUR $LARGEUR $MENU_HAUTEUR \
             "1" "Activer le pare-feu")
-        
         [ $? -ne 0 ] && return
-        
         case "$choix" in
             "1")
-                #ON DEMANDE CONFIRMATION
                 demander_confirmation "Activer le pare-feu sur $machine_nom ?" || continue
-                
-                #ON ACTIVE LE PARE-FEU 
                 afficher_chargement "Activation du pare-feu..."
                 local result=$(executer_ssh "sudo ufw --force enable 2>&1")
-                
-                #ON REGARDE SI LA COMMANDE A MARCHE
                 if echo "$result" | grep -qi "enabled\|activ"; then
                     afficher_succes "PARE-FEU ACTIVE"
                 else
@@ -538,14 +405,10 @@ activer_pare_feu() {
         esac
     done
 }
-###############################################################
-#                     FONCTIONS SYSTEME                       #
-###############################################################
-##############################################################
+
 #FONCTION POUR AFFICHE LES INFORMATIONS SYSTEME
 afficher_info_systeme() {
     afficher_chargement "Recuperation infos systeme..."
-    
     local result=$(executer_ssh "
         echo \"NOM: \$(lsb_release -d 2>/dev/null | cut -f2)\"
         echo \"VERSION: \$(lsb_release -r 2>/dev/null | cut -f2)\"
@@ -554,190 +417,125 @@ afficher_info_systeme() {
         echo \"FABRICANT: \$(cat /sys/class/dmi/id/sys_vendor 2>/dev/null || echo 'NON DISPONIBLE')\"
         echo \"MODELE: \$(cat /sys/class/dmi/id/product_name 2>/dev/null || echo 'NON DISPONIBLE')\"
     ")
-    
     afficher_texte "INFORMATIONS SYSTEME" "$result"
 }
-###############################################################
+
 #FONCTION POUR AFFICHE LUTILISATION DE LA RAM
 afficher_utilisation_ram() {
     afficher_chargement "Recuperation utilisation RAM..."
-    
-    #ON RECUPERE LES INFORMATIONS
     local result=$(executer_ssh "free -h")
-    
     afficher_texte "UTILISATION DE LA MEMOIRE RAM" "$result"
 }
-###############################################################
-#                    FONCTIONS CONTROLES                      #
-###############################################################
-#############################################################
+
 #FONCTION POUR REDEMARRE LA MACHINE
 redemarrer_machine() {
-    #ON DEMANDE UNE PREMIERE CONFIRMATION
     demander_confirmation "Redemarrer la machine ?" || {
         afficher_avertissement "REDEMARRAGE ANNULE"
         return
     }
-    
-    #ON DEMANDE UNE DEUXIEME CONFIRMATION
     demander_confirmation "CONFIRMER LE REDEMARRAGE ?" || {
         afficher_avertissement "REDEMARRAGE ANNULE"
         return
     }
-    
-    #ON REDEMARRE LA MACHINE 
     afficher_chargement "Redemarrage en cours..."
     executer_ssh "sudo reboot" &
-    
     afficher_info "REDEMARRAGE EN COURS..." "REDEMARRAGE"
 }
-#############################################################
+
 #FONCTION POUR EXECUTE UN SCRIPT
 executer_script_distant() {
     while true; do
-        #ON DEMANDE LE CHEMIN DU SCRIPT A EXECUTER
         local CheminScript
         CheminScript=$(demander_saisie "EXECUTION D'UN SCRIPT" "Chemin complet du script a executer :")
-        
-        #ON REGARDE SI LUTILISATEUR VEUT QUITTER
         [ $? -ne 0 ] && return
-        
-        #ON REGARDE SI LE CHEMIN EST VIDE
         if [ -z "$CheminScript" ]; then
             afficher_erreur "CHEMIN NON SPECIFIE"
             continue
         fi
-        
-        #ON VERIFIE  SI LE FICHIER EXISTE
         local existe=$(executer_ssh "[ -f '$CheminScript' ] && echo 'OUI' || echo 'NON'")
         if [ "$existe" = "NON" ]; then
             afficher_erreur "LE FICHIER N'EXISTE PAS"
             continue
         fi
-        
-        #ON DEMANDE CONFIRMATION AVANT DEXECUTER
         demander_confirmation "Executer le script *$CheminScript* ?" || {
             afficher_avertissement "EXECUTION ANNULEE"
             return
         }
-        
-        #ON EXECUTE LE SCRIPT 
         afficher_chargement "Execution du script en cours..."
         local result=$(executer_ssh "sudo bash '$CheminScript' 2>&1")
-        
         if [ -z "$result" ]; then
             result="Script execute (aucune sortie)"
         fi
-        
         afficher_succes "SCRIPT EXECUTE"
         afficher_texte "RESULTAT" "$result"
-        
-        #ON DEMANDE SI LUTILISATEUR VEUT EXECUTER UN AUTRE SCRIPT
         demander_confirmation "Voulez-vous executer un autre script ?" || return
     done
 }
-#############################################################
+
 #FONCTION POUR OUVRE UNE CONSOLE
 ouvrir_console_distante() {
     ssh -p $port_ssh -t "${machine_user}@${machine_ip}" 'clear; echo ""; echo "  Machine : $(hostname)"; echo "  IP : '"$machine_ip"'"; echo ""; echo "  Tapez *exit* pour revenir au menu"; echo ""; exec bash'
 }
-###############################################################
-#                   FONCTIONS UTILISATEURS                    #
-###############################################################
-##############################################################
-#FONCTION POUR AFFICHE LES PERMISSIONS DUN FICHIER 
+
+#FONCTION POUR AFFICHE LES PERMISSIONS DUN FICHIER
 afficher_permissions_utilisateur() {
     while true; do
-        #ON DEMANDE LE CHEMIN DU FICHIER OU DOSSIER
         local Chemin
         Chemin=$(demander_saisie "DROITS ET PERMISSIONS SUR FICHIER" "Chemin du fichier ou dossier :")
-        
-        #ON REGARDE SI LUTILISATEUR VEUT QUITTER
         [ $? -ne 0 ] && return
-        
-        #ON REGARDE SI LE CHEMIN EST VIDE
         if [ -z "$Chemin" ]; then
             afficher_erreur "CHEMIN NON SPECIFIE"
             continue
         fi
-        
-        #ON VERIFIE SI LE CHEMIN EXISTE
         local existe=$(executer_ssh "[ -e '$Chemin' ] && echo 'OUI' || echo 'NON'")
         if [ "$existe" = "NON" ]; then
             afficher_erreur "LE CHEMIN *$Chemin* N'EXISTE PAS"
             continue
         fi
-        
-        #ON RECUPERE LES PERMISSIONS
         afficher_chargement "Recuperation des permissions..."
         local permissions=$(executer_ssh "ls -lA '$Chemin' 2>&1")
-        
         afficher_texte "PERMISSIONS" "CHEMIN: $Chemin
 
 $permissions"
-        
-        #ON DEMANDE SI LUTILISATEUR VEUT CONSULTER UN AUTRE CHEMIN
         demander_confirmation "Voulez-vous consulter un autre chemin ?" || return
     done
 }
-#############################################################
+
 #FONCTION POUR CREE UN NOUVEL UTILISATEUR
 creer_utilisateur_local() {
     while true; do
-        #ON RECUPERE LA LISTE DES UTILISATEURS LOCAUX
         afficher_chargement "Recuperation des utilisateurs existants..."
         local users_list=$(afficher_utilisateurs_locaux)
-        
-        #ON DEMANDE LE NOM DU NOUVEL UTILISATEUR
         local NomUtilisateur
         NomUtilisateur=$(dialog --backtitle "$BACKTITLE" \
             --title "[ CREATION D'UN COMPTE UTILISATEUR ]" \
             --cancel-label "Retour" --stdout \
             --inputbox "\nUtilisateurs locaux :\n$users_list\n\nNom du nouvel utilisateur :" 14 60)
-        
-        #ON REGARDE SI LUTILISATEUR VEUT QUITTER
         [ $? -ne 0 ] && return
-        
-        #ON REGARDE SI LE NOM EST VIDE
         if [ -z "$NomUtilisateur" ]; then
             afficher_erreur "NOM D'UTILISATEUR NON SPECIFIE"
             continue
         fi
-        
-        #ON VERIFIE SI LUTILISATEUR EXISTE DEJA
         local existe=$(executer_ssh "cat /etc/passwd | grep '^$NomUtilisateur:' && echo 'OUI'")
         if echo "$existe" | grep -q "OUI"; then
             afficher_avertissement "L'UTILISATEUR \"$NomUtilisateur\" EXISTE DEJA"
             continue
         fi
-        
-        #ON DEMANDE CONFIRMATION AVANT DE CREER
         demander_confirmation "Confirmer la creation de \"$NomUtilisateur\" ?" || {
             afficher_avertissement "CREATION ANNULEE"
             return
         }
-        
-        #ON CREE LUTILISATEUR 
         afficher_chargement "Creation de l'utilisateur..."
         local result=$(executer_ssh "sudo useradd -m -s /bin/bash '$NomUtilisateur' 2>&1")
-        
-        #ON VERIFIE QUE  LUTILISATEUR A ETE CREE
         local verif=$(executer_ssh "cat /etc/passwd | grep '^$NomUtilisateur:'")
         if [ -n "$verif" ]; then
             afficher_succes "UTILISATEUR \"$NomUtilisateur\" CREE AVEC SUCCES"
-            
-            #ON DEMANDE DE DEFINIR LE MOT DE PASSE
             local mot_de_passe
             mot_de_passe=$(demander_mot_de_passe "MOT DE PASSE" "Definissez le mot de passe :")
-            
             if [ -n "$mot_de_passe" ]; then
-                #ON DEMANDE CONFIRMATION DU MOT DE PASSE
                 local mot_de_passe_confirm
                 mot_de_passe_confirm=$(demander_mot_de_passe "CONFIRMATION" "Confirmez le mot de passe :")
-                
-                #ON VERIFIE QUE LES DEUX MOTS DE PASSE CORRESPONDENT
                 if [ "$mot_de_passe" = "$mot_de_passe_confirm" ]; then
-                    #ON APPLIQUE LE MOT DE PASSE 
                     afficher_chargement "Definition du mot de passe..."
                     local result_mdp=$(executer_ssh "echo '$NomUtilisateur:$mot_de_passe' | sudo chpasswd 2>&1")
                     if [ -z "$result_mdp" ]; then
@@ -752,60 +550,40 @@ creer_utilisateur_local() {
         else
             afficher_erreur "IMPOSSIBLE DE CREER L'UTILISATEUR"
         fi
-        
-        #ON DEMANDE SI LUTILISATEUR VEUT CREER UN AUTRE COMPTE
         demander_confirmation "Voulez-vous creer un autre utilisateur ?" || return
     done
 }
-###########################################################
+
 #FONCTION POUR MODIFIE LE MOT DE PASSE DUN UTILISATEUR
 modifier_mot_de_passe_utilisateur() {
     while true; do
-        #ON RECUPERE LA LISTE DES UTILISATEURS ACTUELS
         afficher_chargement "Recuperation des utilisateurs..."
         local users_list=$(afficher_utilisateurs_locaux)
-        
-        #ON DEMANDE LE NOM DE LUTILISATEUR
         local NomUtilisateur
         NomUtilisateur=$(dialog --backtitle "$BACKTITLE" \
             --title "[ CHANGEMENT DE MOT DE PASSE ]" \
             --cancel-label "Retour" --stdout \
             --inputbox "\nUtilisateurs locaux :\n$users_list\n\nNom de l'utilisateur :" 14 60)
-        
-        #ON REGARDE SI LUTILISATEUR VEUT QUITTER
         [ $? -ne 0 ] && return
-        
-        #ON REGARDE SI LE NOM EST VIDE
         if [ -z "$NomUtilisateur" ]; then
             afficher_erreur "NOM D'UTILISATEUR NON SPECIFIE"
             continue
         fi
-        
-        #ON VERIFIE SI LUTILISATEUR EXISTE
         local existe=$(executer_ssh "cat /etc/passwd | grep '^$NomUtilisateur:'")
         if [ -z "$existe" ]; then
             afficher_erreur "L'UTILISATEUR \"$NomUtilisateur\" N'EXISTE PAS"
             continue
         fi
-        
-        #ON DEMANDE CONFIRMATION AVANT DE MODIFIER
         demander_confirmation "Confirmer le changement de mot de passe pour \"$NomUtilisateur\" ?" || {
             afficher_avertissement "MODIFICATION ANNULEE"
             return
         }
-        
-        #ON DEMANDE LE NOUVEAU MOT DE PASSE
         local mot_de_passe
         mot_de_passe=$(demander_mot_de_passe "NOUVEAU MOT DE PASSE" "Nouveau mot de passe :")
         [ -z "$mot_de_passe" ] && continue
-        
-        #ON DEMANDE CONFIRMATION DU MOT DE PASSE
         local mot_de_passe_confirm
         mot_de_passe_confirm=$(demander_mot_de_passe "CONFIRMATION" "Confirmez le mot de passe :")
-        
-        #ON VERIFIE QUE LES DEUX MOTS DE PASSE CORRESPONDENT
         if [ "$mot_de_passe" = "$mot_de_passe_confirm" ]; then
-            #ON APPLIQUE LE MOT DE PASSE 
             afficher_chargement "Modification du mot de passe..."
             local result=$(executer_ssh "echo '$NomUtilisateur:$mot_de_passe' | sudo chpasswd 2>&1")
             if [ -z "$result" ]; then
@@ -816,298 +594,201 @@ modifier_mot_de_passe_utilisateur() {
         else
             afficher_erreur "LES MOTS DE PASSE NE CORRESPONDENT PAS"
         fi
-        
-        #ON DEMANDE SI LUTILISATEUR VEUT MODIFIER UN AUTRE MOT DE PASSE
         demander_confirmation "Voulez-vous modifier un autre mot de passe ?" || return
     done
 }
-#############################################################
+
 #FONCTION POUR DESACTIVE UN COMPTE UTILISATEUR
 desactiver_utilisateur_local() {
     while true; do
-        #ON RECUPERE LA LISTE DES UTILISATEURS ACTUELS
         afficher_chargement "Recuperation des utilisateurs"
         local users_list=$(afficher_utilisateurs_locaux)
-        
-        #ON DEMANDE LE NOM DE LUTILISATEUR
         local NomUtilisateur
         NomUtilisateur=$(dialog --backtitle "$BACKTITLE" \
             --title "[ DESACTIVATION DE COMPTE UTILISATEUR ]" \
             --cancel-label "Retour" --stdout \
             --inputbox "\nUtilisateurs locaux :\n$users_list\n\nNom de l'utilisateur a desactiver :" 14 60)
-        
-        #ON REGARDE SI LUTILISATEUR VEUT QUITTER
         [ $? -ne 0 ] && return
-        
-        #ON REGARDE SI LE NOM EST VIDE
         if [ -z "$NomUtilisateur" ]; then
             afficher_erreur "NOM D'UTILISATEUR NON SPECIFIE"
             continue
         fi
-        
-        #ON VERIFIE SI LUTILISATEUR EXISTE
         local existe=$(executer_ssh "cat /etc/passwd | grep '^$NomUtilisateur:'")
         if [ -z "$existe" ]; then
             afficher_erreur "L'UTILISATEUR \"$NomUtilisateur\" N'EXISTE PAS"
             continue
         fi
-        
-        #ON DEMANDE CONFIRMATION AVANT DE DESACTIVER
         demander_confirmation "Desactiver \"$NomUtilisateur\" ?" || {
             afficher_avertissement "DESACTIVATION ANNULEE"
             return
         }
-        
-        #ON DESACTIVE LUTILISATEUR 
         afficher_chargement "Desactivation du compte..."
         local result=$(executer_ssh "sudo usermod -L '$NomUtilisateur' 2>&1")
-        
-        #ON VERFIE SI LA COMMANDE A MARCHE
         if [ -z "$result" ]; then
             afficher_succes "UTILISATEUR \"$NomUtilisateur\" DESACTIVE"
         else
             afficher_erreur "IMPOSSIBLE DE DESACTIVER L'UTILISATEUR"
         fi
-        
-        #ON DEMANDE SI LUTILISATEUR VEUT DESACTIVER UN AUTRE COMPTE
         demander_confirmation "Voulez-vous desactiver un autre utilisateur ?" || return
     done
 }
-#############################################################
+
 #FONCTION POUR SUPPRIME UN COMPTE UTILISATEUR
 supprimer_utilisateur_local() {
     while true; do
-        #ON RECUPERE LA LISTE DES UTILISATEURS ACTUELS
         afficher_chargement "Recuperation des utilisateurs..."
         local users_list=$(afficher_utilisateurs_locaux)
-        
-        #ON DEMANDE LE NOM DE LUTILISATEUR
         local NomUtilisateur
         NomUtilisateur=$(dialog --backtitle "$BACKTITLE" \
             --title "[ SUPPRESSION DE COMPTE UTILISATEUR ]" \
             --cancel-label "Retour" --stdout \
             --inputbox "\nUtilisateurs locaux :\n$users_list\n\nNom de l'utilisateur a supprimer :" 14 60)
-        
-        #ON REGARDE SI LUTILISATEUR VEUT QUITTER
         [ $? -ne 0 ] && return
-        
-        #ON REGARDE SI LE NOM EST VIDE
         if [ -z "$NomUtilisateur" ]; then
             afficher_erreur "NOM D'UTILISATEUR NON SPECIFIE"
             continue
         fi
-        
-        #ON VERIFIE  SI LUTILISATEUR EXISTE
         local existe=$(executer_ssh "cat /etc/passwd | grep '^$NomUtilisateur:'")
         if [ -z "$existe" ]; then
             afficher_erreur "L'UTILISATEUR \"$NomUtilisateur\" N'EXISTE PAS"
             continue
         fi
-        
-        #ON DEMANDE CONFIRMATION AVANT DE SUPPRIMER
         demander_confirmation "Supprimer definitivement \"$NomUtilisateur\" ?" || {
             afficher_avertissement "SUPPRESSION ANNULEE"
             return
         }
-        
-        #ON SUPPRIME LUTILISATEUR 
         afficher_chargement "Suppression du compte..."
         local result=$(executer_ssh "sudo userdel '$NomUtilisateur' 2>&1")
-        
-        #ON REGARDE SI LUTILISATEUR A ETE SUPPRIME
         local verif=$(executer_ssh "cat /etc/passwd | grep '^$NomUtilisateur:'")
         if [ -z "$verif" ]; then
             afficher_succes "UTILISATEUR \"$NomUtilisateur\" SUPPRIME"
         else
             afficher_erreur "IMPOSSIBLE DE SUPPRIMER L'UTILISATEUR"
         fi
-        
-        #ON DEMANDE SI LUTILISATEUR VEUT SUPPRIMER UN AUTRE COMPTE
         demander_confirmation "Voulez-vous supprimer un autre utilisateur ?" || return
     done
 }
-#############################################################
+
 #FONCTION POUR AFFICHE LES GROUPES DUN UTILISATEUR
 afficher_groupes_utilisateur() {
     while true; do
-        #ON RECUPERE LA LISTE DES UTILISATEURS ACTUELS
         afficher_chargement "Recuperation des utilisateurs..."
         local users_list=$(afficher_utilisateurs_locaux)
-        
-        #ON DEMANDE LE NOM DE LUTILISATEUR
         local NomUtilisateur
         NomUtilisateur=$(dialog --backtitle "$BACKTITLE" \
             --title "[ GROUPES D'APPARTENANCE D'UN UTILISATEUR ]" \
             --cancel-label "Retour" --stdout \
             --inputbox "\nUtilisateurs locaux :\n$users_list\n\nNom de l'utilisateur :" 14 60)
-        
-        #ON REGARDE SI LUTILISATEUR VEUT QUITTER
         [ $? -ne 0 ] && return
-        
-        #ON REGARDE SI LE NOM EST VIDE
         if [ -z "$NomUtilisateur" ]; then
             afficher_erreur "NOM D'UTILISATEUR NON SPECIFIE"
             continue
         fi
-        
-        #ON VERIEFIE SI LUTILISATEUR EXISTE
         local existe=$(executer_ssh "cat /etc/passwd | grep '^$NomUtilisateur:'")
         if [ -z "$existe" ]; then
             afficher_erreur "L'UTILISATEUR \"$NomUtilisateur\" N'EXISTE PAS"
             continue
         fi
-        
-        #ON RECUPERE LES GROUPES DE LUTILISATEUR
         afficher_chargement "Recuperation des groupes..."
         local groupes=$(executer_ssh "id -Gn '$NomUtilisateur' 2>&1 | sed 's/ / | /g'")
-        
         afficher_texte "GROUPES DE \"$NomUtilisateur\"" "GROUPES : $groupes"
-        
-        #ON DEMANDE SI LUTILISATEUR VEUT CONSULTER UN AUTRE COMPTE
         demander_confirmation "Voulez-vous consulter un autre utilisateur ?" || return
     done
 }
-#############################################################
+
 #FONCTION POUR AJOUTE UN UTILISATEUR AU GROUPE SUDO
 ajouter_utilisateur_groupe_admin() {
     while true; do
-        #ON RECUPERE LA LISTE DES UTILISATEURS ACTUELS
         afficher_chargement "Recuperation des utilisateurs..."
         local users_list=$(afficher_utilisateurs_locaux)
-        
-        #ON DEMANDE LE NOM DE LUTILISATEUR
         local NomUtilisateur
         NomUtilisateur=$(dialog --backtitle "$BACKTITLE" \
             --title "[ AJOUT AUX ADMINISTRATEURS (SUDO) ]" \
             --cancel-label "Retour" --stdout \
             --inputbox "\nUtilisateurs locaux :\n$users_list\n\nNom de l'utilisateur :" 14 60)
-        
-        #ON REGARDE SI LUTILISATEUR VEUT QUITTER
         [ $? -ne 0 ] && return
-        
-        #ON REGARDE SI LE NOM EST VIDE
         if [ -z "$NomUtilisateur" ]; then
             afficher_erreur "NOM D'UTILISATEUR NON SPECIFIE"
             continue
         fi
-        
-        #ON VERIFIE SI LUTILISATEUR EXISTE
         local existe=$(executer_ssh "cat /etc/passwd | grep '^$NomUtilisateur:'")
         if [ -z "$existe" ]; then
             afficher_erreur "L'UTILISATEUR \"$NomUtilisateur\" N'EXISTE PAS"
             continue
         fi
-        
-        #ON DEMANDE CONFIRMATION AVANT DE L4AJOUTER
         demander_confirmation "Ajouter \"$NomUtilisateur\" au groupe *SUDO* ?" || {
             afficher_avertissement "AJOUT ANNULE"
             return
         }
-        
-        #ON AJOUTE LUTILISATEUR AU GROUPE SUDO 
         afficher_chargement "Ajout au groupe sudo..."
         local result=$(executer_ssh "sudo usermod -aG sudo '$NomUtilisateur' 2>&1")
-        
-        #ON REGARDE SI LUTILISATEUR EST DANS LE GROUPE SUDO
         local verif=$(executer_ssh "id -nG '$NomUtilisateur' | grep -w 'sudo'")
         if [ -n "$verif" ]; then
             afficher_succes "UTILISATEUR \"$NomUtilisateur\" AJOUTE AU GROUPE *SUDO*"
         else
             afficher_erreur "IMPOSSIBLE D'AJOUTER L'UTILISATEUR AU GROUPE"
         fi
-        
-        #ON DEMANDE SI LUTILISATEUR VEUT AJOUTER UN AUTRE COMPTE
         demander_confirmation "Voulez-vous ajouter un autre utilisateur ?" || return
     done
 }
-#############################################################
+
 #FONCTION POUR AJOUTE UN UTILISATEUR A UN GROUPE
 ajouter_utilisateur_groupe() {
     while true; do
-        #ON RECUPERE LA LISTE DES UTILISATEURS ACTUELS
         afficher_chargement "Recuperation des utilisateurs..."
         local users_list=$(afficher_utilisateurs_locaux)
-        
-        #ON DEMANDE LE NOM DE LUTILISATEUR
         local NomUtilisateur
         NomUtilisateur=$(dialog --backtitle "$BACKTITLE" \
             --title "[ AJOUT A UN GROUPE ]" \
             --cancel-label "Retour" --stdout \
             --inputbox "\nUtilisateurs locaux :\n$users_list\n\nNom de l'utilisateur :" 14 60)
-        
-        #ON REGARDE SI LUTILISATEUR VEUT QUITTER
         [ $? -ne 0 ] && return
-        
-        #ON REGARDE SI LE NOM EST VIDE
         if [ -z "$NomUtilisateur" ]; then
             afficher_erreur "NOM D'UTILISATEUR NON SPECIFIE"
             continue
         fi
-        
-        #ON REGARDE SI LUTILISATEUR EXISTE
         local existe=$(executer_ssh "cat /etc/passwd | grep '^$NomUtilisateur:'")
         if [ -z "$existe" ]; then
             afficher_erreur "L'UTILISATEUR \"$NomUtilisateur\" N'EXISTE PAS"
             continue
         fi
-        
-        #ON RECUPERE LES GROUPES DISPONIBLES
         afficher_chargement "Recuperation des groupes disponibles..."
         local groupes_dispo=$(executer_ssh "
             groupes_classiques=\$(cat /etc/group | grep -E '^(sudo|users|adm|cdrom|plugdev|netdev|audio|video|staff|games|docker|www-data):' | cut -d: -f1)
             groupes_utilisateurs=\$(awk -F: '\$3 >= 1000 {print \$1}' /etc/group)
             echo -e \"\$groupes_classiques\n\$groupes_utilisateurs\" | sort -u | grep -v '^\$' | tr '\n' ' ' | sed 's/ / | /g' | sed 's/ | \$//'
         ")
-        
-        #ON DEMANDE LE NOM DU GROUPE
         local NomGroupe
         NomGroupe=$(dialog --backtitle "$BACKTITLE" \
             --title "[ NOM DU GROUPE ]" \
             --cancel-label "Retour" --stdout \
             --inputbox "\nGroupes disponibles :\n$groupes_dispo\n\nNom du groupe :" 14 60)
-        
-        #ON REGARDE SI LUTILISATEUR VEUT QUITTER
         [ $? -ne 0 ] && return
-        
-        #ON REGARDE SI LE NOM DU GROUPE EST VIDE
         if [ -z "$NomGroupe" ]; then
             afficher_erreur "NOM DU GROUPE NON SPECIFIE"
             continue
         fi
-        
-        #ON REGARDE SI LE GROUPE EXISTE
         local groupe_existe=$(executer_ssh "cat /etc/group | grep '^$NomGroupe:'")
         if [ -z "$groupe_existe" ]; then
             afficher_erreur "LE GROUPE *$NomGroupe* N'EXISTE PAS"
             continue
         fi
-        
-        #ON DEMANDE CONFIRMATION AVANT DAJOUTER
         demander_confirmation "Ajouter \"$NomUtilisateur\" au groupe *$NomGroupe* ?" || {
             afficher_avertissement "AJOUT ANNULE"
             return
         }
-        
-        #ON AJOUTE LUTILISATEUR AU GROUPE
         afficher_chargement "Ajout au groupe..."
         local result=$(executer_ssh "sudo usermod -aG '$NomGroupe' '$NomUtilisateur' 2>&1")
-        
-        #ON REGARDE SI LUTILISATEUR EST BIEN DANS LE GROUPE
         local verif=$(executer_ssh "id -nG '$NomUtilisateur' | grep -w '$NomGroupe'")
         if [ -n "$verif" ]; then
             afficher_succes "UTILISATEUR \"$NomUtilisateur\" AJOUTE AU GROUPE *$NomGroupe*"
         else
             afficher_erreur "IMPOSSIBLE D'AJOUTER L'UTILISATEUR AU GROUPE"
         fi
-        
-        #ON DEMANDE SI LUTILISATEUR VEUT AJOUTER UN AUTRE COMPTE
         demander_confirmation "Voulez-vous ajouter un autre utilisateur ?" || return
     done
 }
-###############################################################
-#                           MENUS                             #
-###############################################################
-#############################################################
+
 #FONCTION POUR AFFICHE LE MENU DES REPERTOIRES
 menu_repertoires() {
     while true; do
@@ -1119,16 +800,14 @@ menu_repertoires() {
             $HAUTEUR $LARGEUR $MENU_HAUTEUR \
             "1" "Creer un repertoire" \
             "2" "Supprimer un repertoire")
-        
         [ $? -ne 0 ] && return
-        
         case "$choix" in
             "1") creer_repertoire ;;
             "2") supprimer_repertoire ;;
         esac
     done
 }
-#############################################################
+
 #FONCTION POUR AFFICHE LE MENU LOGICIELS
 menu_logiciels() {
     while true; do
@@ -1140,16 +819,14 @@ menu_logiciels() {
             $HAUTEUR $LARGEUR $MENU_HAUTEUR \
             "1" "Applications installees" \
             "2" "Mises a jour critiques")
-        
         [ $? -ne 0 ] && return
-        
         case "$choix" in
             "1") afficher_applications_installees ;;
             "2") afficher_mises_a_jour_manquantes ;;
         esac
     done
 }
-#############################################################
+
 #FONCTION POUR AFFICHE LE MENU SERVICES
 menu_services() {
     while true; do
@@ -1160,15 +837,13 @@ menu_services() {
             --menu "\nMachine : $machine_nom\nIP : $machine_ip\n" \
             $HAUTEUR $LARGEUR $MENU_HAUTEUR \
             "1" "Lister les services en cours")
-        
         [ $? -ne 0 ] && return
-        
         case "$choix" in
             "1") afficher_services_en_cours ;;
         esac
     done
 }
-#############################################################
+
 #FONCTION POUR AFFICHE LE MENU RESEAU
 menu_reseau() {
     while true; do
@@ -1181,9 +856,7 @@ menu_reseau() {
             "1" "Ports ouverts" \
             "2" "Information reseau" \
             "3" "Activation du pare-feu")
-        
         [ $? -ne 0 ] && return
-        
         case "$choix" in
             "1") afficher_ports_ouverts ;;
             "2") afficher_config_ip ;;
@@ -1191,7 +864,7 @@ menu_reseau() {
         esac
     done
 }
-#############################################################
+
 #FONCTION POUR AFFICHE LE MENU SYSTEME
 menu_systeme() {
     while true; do
@@ -1203,16 +876,14 @@ menu_systeme() {
             $HAUTEUR $LARGEUR $MENU_HAUTEUR \
             "1" "Informations systeme" \
             "2" "Information sur la RAM")
-        
         [ $? -ne 0 ] && return
-        
         case "$choix" in
             "1") afficher_info_systeme ;;
             "2") afficher_utilisation_ram ;;
         esac
     done
 }
-#############################################################
+
 #FONCTION POUR AFFICHE LE MENU CONTROLES
 menu_controles() {
     while true; do
@@ -1225,9 +896,7 @@ menu_controles() {
             "1" "Redemarrage" \
             "2" "Executer un script" \
             "3" "Prise de main a distance (CLI)")
-        
         [ $? -ne 0 ] && return
-        
         case "$choix" in
             "1") redemarrer_machine ;;
             "2") executer_script_distant ;;
@@ -1235,8 +904,8 @@ menu_controles() {
         esac
     done
 }
-#############################################################
-#FONCTION POUR AFFICHE LE MENU  UTILISATEURS
+
+#FONCTION POUR AFFICHE LE MENU UTILISATEURS
 menu_utilisateurs() {
     while true; do
         local choix
@@ -1253,9 +922,7 @@ menu_utilisateurs() {
             "6" "Ajouter aux administrateurs" \
             "7" "Ajouter a un groupe" \
             "8" "Droits et permissions sur fichier")
-        
         [ $? -ne 0 ] && return
-        
         case "$choix" in
             "1") creer_utilisateur_local ;;
             "2") modifier_mot_de_passe_utilisateur ;;
@@ -1268,7 +935,7 @@ menu_utilisateurs() {
         esac
     done
 }
-#############################################################
+
 #FONCTION POUR AFFICHE LE MENU GESTION DE LA MACHINE
 menu_gestion_machine() {
     while true; do
@@ -1284,9 +951,7 @@ menu_gestion_machine() {
             "4" "Reseau" \
             "5" "Systeme" \
             "6" "Controles")
-        
         [ $? -ne 0 ] && return
-        
         case "$choix" in
             "1") menu_repertoires ;;
             "2") menu_logiciels ;;
@@ -1297,8 +962,8 @@ menu_gestion_machine() {
         esac
     done
 }
-#############################################################
-#FONCTION POUR AFFICHE LE MENU CLIENT 
+
+#FONCTION POUR AFFICHE LE MENU CLIENT
 menu_client() {
     while true; do
         local choix
@@ -1309,16 +974,14 @@ menu_client() {
             $HAUTEUR $LARGEUR $MENU_HAUTEUR \
             "1" "GESTION DE LA MACHINE" \
             "2" "GESTION DES UTILISATEURS")
-        
         [ $? -ne 0 ] && return
-        
         case "$choix" in
             "1") menu_gestion_machine ;;
             "2") menu_utilisateurs ;;
         esac
     done
 }
-#############################################################
+
 #FONCTION POUR AFFICHE LA LISTE DES MACHINES DISPONIBLES
 afficher_liste_machines() {
     while true; do
@@ -1329,7 +992,6 @@ afficher_liste_machines() {
             options+=("$i" "$ip - $nom")
             ((i++))
         done
-        
         local choix
         choix=$(dialog --backtitle "$BACKTITLE" \
             --title "[ MACHINES DISPONIBLES ]" \
@@ -1338,9 +1000,7 @@ afficher_liste_machines() {
             --menu "\nSelectionnez une machine :\n" \
             $HAUTEUR $LARGEUR $MENU_HAUTEUR \
             "${options[@]}")
-        
         local ret=$?
-        
         case $ret in
             0)
                 if [[ "$choix" =~ ^[0-9]+$ ]] && [ "$choix" -ge 1 ] && [ "$choix" -le ${#liste_ip[@]} ]; then
@@ -1360,7 +1020,7 @@ afficher_liste_machines() {
         esac
     done
 }
-#############################################################
+
 #FONCTION POUR AFFICHE LE MENU PRINCIPAL
 menu_principal() {
     while true; do
@@ -1386,9 +1046,7 @@ menu_principal() {
   Reseau : ${ip_reseau}0/24                               └────────────────┘\n" \
             28 80 $MENU_HAUTEUR \
             "1" "SCANNER LE RESEAU")
-        
         local ret=$?
-        
         if [ $ret -ne 0 ]; then
             demander_confirmation "Voulez-vous quitter ?" && {
                 clear
@@ -1396,7 +1054,6 @@ menu_principal() {
             }
             continue
         fi
-        
         case "$choix" in
             "1")
                 if scanner_reseau; then
@@ -1408,19 +1065,14 @@ menu_principal() {
         esac
     done
 }
-#############################################################
+
 #FONCTION POUR SUPPRIMER LES FICHIERS TEMPORAIRES
 nettoyer() {
-    #ON SUPPRIME TOUS LES FICHIERS TEMPORAIRES CREES PAR LE SCRIPT
     rm -f "$fichier_temp" "$fichier_noms" "$fichier_result" "$DIALOGRC" 
     clear
 }
 trap nettoyer EXIT SIGINT SIGTERM
-###############################################################
-#                DEMARRAGE DU SCRIPT                          #
-###############################################################
-#############################################################
-#ON VERIFIE QUE DIALOG EST INSTALLE
+
 if ! command -v dialog &>/dev/null; then
     echo ""
     echo "ERREUR :dialog n'est pas installe"
