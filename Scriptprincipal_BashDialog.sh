@@ -451,7 +451,7 @@ afficher_services_en_cours() {
     afficher_chargement "Recuperation des services..."
     
     #ON RECUPERE LA LISTE DES SERVICES EN COURS 
-    local liste_services=$(executer_ssh "systemctl list-units --type=service --state=running --no-pager 2>/dev/null | grep '.service'")
+    local liste_services=$(executer_ssh "systemctl list-units --type=service --state=running --no-pager")
     
     if [ -z "$liste_services" ]; then
         afficher_erreur "Impossible de recuperer les services"
