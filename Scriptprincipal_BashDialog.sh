@@ -207,9 +207,7 @@ afficher_utilisateurs_locaux() {
 ###############################################################
 detecter_linux() {
     local ip="$1"
-    local result=""
-    result=$(ssh -p $port_ssh -o ConnectTimeout=3 -o StrictHostKeyChecking=no -o BatchMode=yes "${utilisateur_linux}@${ip}" "uname" 2>/dev/null)
-    if [ "$result" = "Linux" ]; then
+    if ssh -p $port_ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no -o BatchMode=yes "${utilisateur_linux}@${ip}" "uname" 2>/dev/null | grep -qi "linux"; then
         return 0
     fi
     return 1
