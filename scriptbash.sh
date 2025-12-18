@@ -5,11 +5,9 @@
 #                   WILD_CODE_SCHOOL                             #
 #                      24/11/2025                                #
 ##################################################################
-
 #################################################################
 #   DECLARATIONS VARIABLE & CONFIGURATION DE LA JOURNALISATION  #
 #################################################################
-
 # EMPLACEMENT DOSSIER LOG TEMPORAIRE
 log_dir="/tmp"
 
@@ -43,14 +41,14 @@ RESET='\e[0m'
 #                     FONCTIONS DE JOURNALISATION                  #
 ####################################################################
 ####################################################################
-#FONCTION QUI PREPARE LE FICHIER DE LOG ET LE DOSSIER INFO
+#FONCTION POUR PREPARE LE FICHIER DE LOG ET LE DOSSIER INFO
 initialiser_journal() {
     # ON CREE LE FICHIER DE LOG DANS LE DOSSIER TMP
     touch "$log_file" 2>/dev/null
     
     # ON REGARDE SI LE DOSSIER INFO EXISTE DEJA
     if [ ! -d "$info_dir" ]; then
-        #LE DOSSIER INFO NEXISTE PAS DONC ON LE CREE
+        #LE DOSSIER INFO NEXISTE PAS ON LE CREE
         mkdir -p "$info_dir" 2>/dev/null
     fi
 }
@@ -66,10 +64,10 @@ sauvegarder_log() {
     # ON DECLARE UNE VARIABLE POUR LHEURE
     local heure_evt
 
-    # ON RECUPERE LA DATE DU JOUR AU FORMAT ANNEE MOIS JOUR
+    # DATE 
     date_evt=$(date "+%Y%m%d")
 
-    # ON RECUPERE LHEURE ACTUELLE AU FORMAT HEURE MINUTE SECONDE
+    # HEURE 
     heure_evt=$(date "+%H%M%S")
 
     # ON ECRIT LA LIGNE DANS LE FICHIER DE LOG
@@ -109,11 +107,11 @@ verifier_mot_de_passe_admin() {
     #NOM DE LACTION SENSIBLE
     echo "=== ACTION SENSIBLE : $action ==="
     echo ""
-    #ON DEMANDE LE MOT DE PASSE SANS L AFFICHER A LECRAN
+    #ON DEMANDE LE MDP
     read -s -p "MOT DE PASSE ADMINISTRATEUR: " mdp
     echo ""
     
-    #ON VERIFIE LE MOT DE PASSE 
+    #ON VERIFIE LE MDP
     echo "$mdp" | su -c "true" "$USER" 2>/dev/null
     #ON REGARDE SI LA COMMANDE A MARCHE OU PAS
     if [ $? -eq 0 ]; then
@@ -169,7 +167,7 @@ afficher_utilisateurs_locaux() {
 
     echo ""
 
-    #ON AFFICHE LE FICHIER PASSWD ET ON GARDE SEULEMENT LES UTILISATEURS AVEC UN HOME
+    #ON AFFICHE SEULEMENT LES UTILISATEURS AVEC UN HOME
     cat /etc/passwd | grep "/home"
 
     echo ""
@@ -299,7 +297,7 @@ supprimer_repertoire() {
         return
     fi
     
-    #ON DEMANDE LE MOT DE PASSE ADMIN CAR C'EST UNE ACTION SENSIBLE
+    #ON DEMANDE LE MOT DE PASSE ADMIN CAR  ACTION SENSIBLE
     if ! verifier_mot_de_passe_admin "SUPPRIMER REPERTOIRE *$Chemin*"; then
         #LE MOT DE PASSE EST MAUVAIS DONC ON RECOMMENCE
         supprimer_repertoire
@@ -389,7 +387,7 @@ afficher_mises_a_jour_manquantes() {
         nb_maj=$(echo "$liste_maj" | grep -v "^$" | wc -l)
     fi
     
-        #ON REGARDE SI IL Y A DES MISES A JOUR OU PAS
+        #ON REGARDE SI IL Y A DES MAJ OU PAS
         if [ "$nb_maj" -eq 0 ]; then
         
             #IL N'Y A PAS DE MISES A JOUR ALORS ON AFFICHE UN MESSAGE
@@ -834,7 +832,7 @@ redemarrer_machine() {
     fi
     echo ""
     echo -e "${GRIS}REDEMARRAGE EN COURS...${RESET}"
-    # ENREGISTREMENT DU REDEMARRAGE DANS LES LOGS
+    #LOGS
     sauvegarder_log "Action_RedemarrageMachine"
     sleep 2
     sudo reboot
@@ -851,7 +849,6 @@ executer_script_distant() {
     if [ "$CheminScript" = "q" ] || [ "$CheminScript" = "Q" ]; then
 	#LOGS
         sauvegarder_log "Navigation_Retour"
-        # RETOUR AU MENU CONTROLES
         menu_controles
         return
     fi
@@ -859,13 +856,13 @@ executer_script_distant() {
     if [ -z "$CheminScript" ]; then
         echo -e "${ROUGE}CHEMIN NON SPECIFIE${RESET}"
         read -p "APPUYEZ SUR [ENTREE] POUR CONTINUER"
-        # SI LE CHEMIN EST VIDE, ON RELANCE LA FONCTION
+        # SI LE CHEMIN EST VIDE ON RELANCE LA FONCTION
         executer_script_distant
         return
     fi
     # ON VERIFIE QUE LE FICHIER EXISTE
     if [ ! -f "$CheminScript" ]; then
-        # SI LE FICHIER N'EXISTE PAS, ON AFFICHE UN MESSAGE D'ERREUR
+        # SI LE FICHIER N'EXISTE PAS ON AFFICHE UN MESSAGE D'ERREUR
         echo -e "${ROUGE}LE FICHIER N'EXISTE PAS${RESET}"
         read -p "APPUYEZ SUR [ENTREE] POUR CONTINUER"
         executer_script_distant
@@ -902,7 +899,7 @@ executer_script_distant() {
     echo ""
     # ON DEMANDE SI L'UTILISATEUR VEUT EXECUTER UN AUTRE SCRIPT
     read -p "VOULEZ-VOUS EXECUTER UN AUTRE SCRIPT ? [O/N]: " Continuer
-    # SI OUI, RELANCE DE LA FONCTION
+    # SI OUI RELANCE DE LA FONCTION
     if [ "$Continuer" = "O" ] || [ "$Continuer" = "o" ]; then
         executer_script_distant
     else
@@ -974,7 +971,7 @@ afficher_permissions_utilisateur() {
     #TITRE
     echo "PERMISSIONS:"
     
-    #ON REGARDE SI LE CHEMIN EST UN DOSSIER
+    #ON REGARDE SSI LE CHEMIN EST UN DOSSIER
     if [ -d "$Chemin" ]; then
         #CEST UN DOSSIER DONC ON LISTE SON CONTENU
         permissions=$(ls -lA "$Chemin")
@@ -1181,7 +1178,7 @@ ajouter_utilisateur_groupe_admin() {
         return
     fi
     
-    #ON DEMANDE LE MOT DE PASSE ADMIN CAR CEST UNE ACTION SENSIBLE
+    #ON DEMANDE LE MOT DE PASSE ADMIN CAR ACTION SENSIBLE
     if ! verifier_mot_de_passe_admin "AJOUTER \"$NomUtilisateur\" AU GROUPE *SUDO*"; then
         #LE MOT DE PASSE EST MAUVAIS DONC ON RECOMMENCE
         ajouter_utilisateur_groupe_admin
@@ -1311,7 +1308,7 @@ modifier_mot_de_passe_utilisateur() {
 }
 
 ###############################################################
-#FONCTION POUR  CREE UN NOUVEL UTILISATEUR
+#FONCTION POUR  CREE UN NOUVEL UTILISATEUR R
 creer_utilisateur_local() {
     #ENTETE
     afficher_entete
@@ -1648,7 +1645,7 @@ afficher_groupes_utilisateur() {
 #                         FONCTIONS MENUS                          #
 ####################################################################
 ###############################################################
-#FONCTION QUI AFFICHE LE MENU DES REPERTOIRES
+#FONCTION QUI AFFICHE LE MENU  REPERTOIRES
 menu_repertoires() {
     #ENTETE
     afficher_entete
@@ -1681,7 +1678,7 @@ menu_repertoires() {
 }
 
 ###############################################################
-#FONCTION QUI AFFICHE LE MENU DES LOGICIELS
+#FONCTION QUI AFFICHE LE MENU  LOGICIELS
 menu_logiciels() {
     #ENTETE
     afficher_entete
@@ -1694,7 +1691,7 @@ menu_logiciels() {
 
     echo ""
 
-    #ON AFFICHE LES OPTIONS DU MENU
+    #OPTIONS DU MENU
     echo "  1.APPLICATIONS INSTALLEES"
     echo "  2.MISES A JOUR CRITIQUES"
     echo "  3.RETOUR"
@@ -1809,7 +1806,7 @@ menu_systeme() {
 
     echo ""
 
-    #ON AFFICHE LES OPTIONS DU MENU
+    #OPTIONS DU MENU
     echo "  1.INFORMATIONS SYSTEME"
     echo "  2.INFORMATION SUR LA RAM"
     echo "  3.RETOUR"
@@ -1825,7 +1822,7 @@ menu_systeme() {
         2) afficher_utilisation_ram ;;
         3) sauvegarder_log "Navigation_Retour"; menu_gestion_machine ;;
         *)
-            #LE CHOIX NEST PAS VALIDE DONC ON AFFICHE UN MESSAGE
+            #MESSAGE ERREUR
             echo -e "${ROUGE}CHOIX INVALIDE${RESET}"
             read -p "APPUYEZ SUR [ENTREE] POUR CONTINUER"
             menu_systeme
@@ -1847,7 +1844,7 @@ menu_controles() {
 
     echo ""
 
-    #ON AFFICHE LES OPTIONS DU MENU
+    #OPTIONS DU MENU
     echo "  1.REDEMARRAGE"
     echo "  2.EXECUTER UN SCRIPT"
     echo "  3.PRISE DE MAIN A DISTANCE (CLI)"
@@ -1937,7 +1934,7 @@ menu_gestion_machine() {
 
     echo ""
 
-    #ON AFFICHE LES OPTIONS DU MENU
+    #OPTIONS DU MENU
     echo "  1.REPERTOIRES"
     echo "  2.LOGICIELS"
     echo "  3.SERVICES"
@@ -1983,7 +1980,7 @@ menu_principal() {
 
     echo ""
 
-    #ON AFFICHE LES OPTIONS DU MENU
+    #OPTIONS DU MENU
     echo "  1.GESTION DE LA MACHINE"
     echo "  2.GESTION DES UTILISATEURS"
     echo "  Q.QUITTER"
@@ -2000,7 +1997,7 @@ menu_principal() {
         Q|q)
             clear
 
-            #ON ENREGISTRE LA DECONNEXION DANS LE LOG
+            #LOG
             sauvegarder_log "DeconnexionMachine"
 
             #ON QUITTE LE SCRIPT
