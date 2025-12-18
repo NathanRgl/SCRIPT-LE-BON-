@@ -267,41 +267,23 @@ scanner_reseau() {
             
             echo "XXX"
             echo "$pct"
-            echo "\nRecherche des machines$points\n\nAdresse: $ip"
+            echo "\nScan du reseau en cours$points\n\nAdresse: $ip"
             echo "XXX"
         done
         wait
     ) | dialog --backtitle "$BACKTITLE" \
             --title "[ SCAN DU RESEAU ]" \
-            --gauge "\nRecherche des machines...\n" 10 55 0
+            --gauge "\nScan du reseau en cours...\n" 10 55 0
     
-    #ETAPE 2 : DETECTION SSH HORS SOUS-SHELL
+    #ETAPE 2 : DETECTION SSH SILENCIEUSE
     if [ -s "$fichier_temp" ]; then
-        #ON LIT LE FICHIER DANS UN TABLEAU
         local ips_trouvees=()
         while read -r ligne; do
             [ -n "$ligne" ] && ips_trouvees+=("$ligne")
         done < "$fichier_temp"
         
-        local total=${#ips_trouvees[@]}
-        local count=0
-        
         for ip in "${ips_trouvees[@]}"; do
             if [ "$ip" != "$local_ip" ]; then
-                local points_num=$(( (count / 2) % 3 ))
-                local points=""
-                case $points_num in
-                    0) points="." ;;
-                    1) points=".." ;;
-                    2) points="..." ;;
-                esac
-                
-                local pct=$(( count * 100 / total ))
-                
-                echo "$pct" | dialog --backtitle "$BACKTITLE" \
-                    --title "[ VERIFICATION SSH ]" \
-                    --gauge "\nVerification SSH$points\n\nAdresse: $ip" 10 55
-                
                 if ssh -p $port_ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no -o BatchMode=yes "${utilisateur_linux}@${ip}" "uname" 2>/dev/null | grep -qi "linux"; then
                     local nom=$(ssh -p $port_ssh -o ConnectTimeout=3 -o BatchMode=yes -o StrictHostKeyChecking=no "${utilisateur_linux}@${ip}" "hostname" 2>/dev/null | tr -d '\r')
                     [ -z "$nom" ] && nom="?"
@@ -309,7 +291,6 @@ scanner_reseau() {
                     noms_machines["$ip"]="$nom"
                 fi
             fi
-            count=$((count + 1))
         done
     fi
     
