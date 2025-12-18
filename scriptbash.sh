@@ -6,6 +6,10 @@
 #                      24/11/2025                                #
 ##################################################################
 
+#################################################################
+#   DECLARATIONS VARIABLE & CONFIGURATION DE LA JOURNALISATION  #
+#################################################################
+
 log_dir="/tmp"
 log_file="$log_dir/log_evt.log"
 info_dir="/tmp/info"
@@ -21,6 +25,9 @@ BLEU='\e[34m'
 BLANC='\e[97m'
 ROUGE='\e[31m'
 RESET='\e[0m'
+####################################################################
+#                     FONCTIONS DE JOURNALISATION                  #
+####################################################################
 
 #FONCTION POUR PREPARE LE FICHIER DE LOG ET LE DOSSIER INFO
 initialiser_journal() {
@@ -50,6 +57,9 @@ sauvegarder_info() {
     fi
     echo "$contenu" >> "$fichier_info" 2>/dev/null
 }
+####################################################################
+#                  MOT DE PASSE ADMINISTRATEUR                     #
+####################################################################
 
 #FONCTION QUI DEMANDE LE MOT DE PASSE ADMIN POUR LES ACTIONS SENSIBLES
 verifier_mot_de_passe_admin() {
@@ -71,6 +81,9 @@ verifier_mot_de_passe_admin() {
         return 1
     fi
 }
+####################################################################
+#                          FONCTION ENTETE                         #
+####################################################################
 
 #FONCTION QUI AFFICHE LENTETE AVEC NOM MACHINE + IP
 afficher_entete() {
@@ -87,6 +100,10 @@ afficher_entete() {
     echo ""
 }
 
+####################################################################
+#                 FONCTION AFFICHER UTILISATEURS                   #
+####################################################################
+
 #FONCTION QUI AFFICHE LA LISTE DES UTILISATEURS LOCAUX
 afficher_utilisateurs_locaux() {
     echo "  UTILISATEURS LOCAUX"
@@ -94,6 +111,10 @@ afficher_utilisateurs_locaux() {
     cat /etc/passwd | grep "/home"
     echo ""
 }
+
+####################################################################
+#                        FONCTIONS REPERTOIRES                     #
+####################################################################
 
 #FONCTION POUR CREE UN NOUVEAU REPERTOIRE
 creer_repertoire() {
@@ -191,6 +212,10 @@ supprimer_repertoire() {
     fi
 }
 
+####################################################################
+#                        FONCTIONS LOGICIELS                       #
+####################################################################
+
 #FONCTION QUI AFFICHE LES MISES A JOUR CRITIQUES
 afficher_mises_a_jour_manquantes() {
     afficher_entete
@@ -251,6 +276,10 @@ afficher_applications_installees(){
     menu_logiciels
 }
 
+####################################################################
+#                   FONCTIONS SERVICES                             #
+####################################################################
+
 #FONCTION QUI AFFICHE LES SERVICES EN COURS
 afficher_services_en_cours() {
     afficher_entete
@@ -269,6 +298,10 @@ afficher_services_en_cours() {
     read -p "APPUYEZ SUR [ENTREE] POUR CONTINUER"
     menu_services
 }
+
+####################################################################
+#                        FONCTIONS RESEAU                          #
+####################################################################
 
 #FONCTION POUR AFFICHER LES PORTS OUVERTS
 afficher_ports_ouverts() {
@@ -362,6 +395,10 @@ activer_pare_feu() {
     esac
 }
 
+####################################################################
+#                        FONCTIONS SYSTEME                         #
+####################################################################
+
 #FONCTION QUI AFFICHE LES INFORMATIONS SYSTEME
 afficher_info_systeme() {
     afficher_entete
@@ -434,6 +471,10 @@ afficher_utilisation_ram() {
     read -p "APPUYEZ SUR [ENTREE] POUR CONTINUER"
     menu_systeme
 }
+
+####################################################################
+#                         FONCTIONS CONTROLES                      #
+####################################################################
 
 #FONCTION POUR REDEMARRE LA MACHINE
 redemarrer_machine() {
@@ -523,6 +564,10 @@ ouvrir_console_distante() {
     sauvegarder_log "Action_FermetureConsole"
     menu_controles
 }
+
+####################################################################
+#                         FONCTIONS UTILISATEURS                   #
+####################################################################
 
 #FONCTION QUI AFFICHE LES PERMISSIONS DUN FICHIER OU DOSSIER
 afficher_permissions_utilisateur() {
@@ -953,6 +998,10 @@ afficher_groupes_utilisateur() {
     fi
 }
 
+####################################################################
+#                         FONCTIONS MENUS                          #
+####################################################################
+
 #FONCTION QUI AFFICHE LE MENU REPERTOIRES
 menu_repertoires() {
     afficher_entete
@@ -1185,6 +1234,10 @@ menu_principal() {
             ;;
     esac
 }
+
+####################################################################
+#                       DEMARRAGE DU SCRIPT                        #
+####################################################################
 
 initialiser_journal
 sauvegarder_log "ConnexionMachine"

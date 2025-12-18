@@ -15,7 +15,9 @@ export DIALOG_HELP="Aide"
 export DIALOG_EXTRA="Extra"
 export DIALOG_ITEM_HELP="Aide"
 export DIALOG_EXIT="Retour"
-
+###############################################################
+#          CONFIGURATION THEME DE DIALOG                      #      
+###############################################################
 export DIALOGRC="/tmp/dialogrc_$$"
 echo "screen_color = (WHITE,MAGENTA,ON)
 shadow_color = (BLACK,BLACK,OFF)
@@ -44,6 +46,10 @@ check_selected_color = (WHITE,MAGENTA,ON)
 use_shadow = ON
 use_colors = ON" > "$DIALOGRC"
 
+###############################################################
+#                        CONFIGURATION                        #
+###############################################################
+
 ip_reseau="172.16.20."
 export port_ssh="22222"
 delai_ping=1
@@ -61,6 +67,10 @@ LARGEUR=90
 HAUTEUR=25
 MENU_HAUTEUR=10
 BACKTITLE=""
+
+###############################################################
+#                     FONCTIONS DIALOG                        #
+###############################################################
 
 #FONCTION POUR AFFICHE UNE INFORMATION
 afficher_info() {
@@ -153,17 +163,25 @@ afficher_chargement() {
         --title "[ CHARGEMENT ]" \
         --infobox "\n  $message\n\n  Veuillez patienter...\n" 7 45
 }
-
+###############################################################
+#                       FONCTIONS SSH                         #
+###############################################################
 #FONCTION POUR EXECUTE UNE COMMANDE SSH SUR LA MACHINE DISTANTE
 executer_ssh() {
     local commande="$1"
     ssh -p $port_ssh -o ConnectTimeout=10 -o BatchMode=yes -o StrictHostKeyChecking=no "${machine_user}@${machine_ip}" "$commande" 2>&1 
 }
+###############################################################
+#                 FONCTION AFFICHER UTILISATEURS              #
+###############################################################
 
 #FONCTION POUR AFFICHE LA LISTE DES UTILISATEURS LOCAUX
 afficher_utilisateurs_locaux() {
     executer_ssh "cat /etc/passwd | grep '/home' | cut -d':' -f1 | tr '\n' ' ' | sed 's/ / | /g' | sed 's/ | $//'"
 }
+###############################################################
+#                        DETECTION RESEAU                     #
+###############################################################
 
 #FONCTION POUR DETECTE UNE MACHINE LINUX
 detecter_linux() {
@@ -240,6 +258,9 @@ scanner_reseau() {
     rm -f "$fichier_temp" "$fichier_noms"
     [ ${#liste_ip[@]} -gt 0 ]
 }
+###############################################################
+#                     FONCTIONS REPERTOIRES                   #
+###############################################################
 
 #FONCTION POUR CREE UN NOUVEAU REPERTOIRE
 creer_repertoire() {
@@ -300,6 +321,9 @@ supprimer_repertoire() {
         demander_confirmation "Voulez-vous supprimer un autre repertoire ?" || return
     done
 }
+###############################################################
+#                    FONCTIONS LOGICIELS                      #
+###############################################################
 
 #FONCTION POUR AFFICHE LES APPLICATIONS INSTALLEES
 afficher_applications_installees() {
@@ -333,7 +357,9 @@ $liste_maj"
         afficher_texte "MISES A JOUR CRITIQUES" "$result"
     fi
 }
-
+###############################################################
+#                   FONCTIONS SERVICES                        #
+###############################################################
 #FONCTION POUR AFFICHE LES SERVICES EN COURS
 afficher_services_en_cours() {
     afficher_chargement "Recuperation des services..."
@@ -344,6 +370,9 @@ afficher_services_en_cours() {
         afficher_texte "SERVICES EN COURS D'EXECUTION" "$liste_services"
     fi
 }
+###############################################################
+#                      FONCTIONS RESEAU                       #
+###############################################################
 
 #FONCTION POUR AFFICHE LES PORTS OUVERTS
 afficher_ports_ouverts() {
@@ -405,6 +434,9 @@ activer_pare_feu() {
         esac
     done
 }
+###############################################################
+#                     FONCTIONS SYSTEME                       #
+###############################################################
 
 #FONCTION POUR AFFICHE LES INFORMATIONS SYSTEME
 afficher_info_systeme() {
@@ -426,6 +458,9 @@ afficher_utilisation_ram() {
     local result=$(executer_ssh "free -h")
     afficher_texte "UTILISATION DE LA MEMOIRE RAM" "$result"
 }
+###############################################################
+#                    FONCTIONS CONTROLES                      #
+###############################################################
 
 #FONCTION POUR REDEMARRE LA MACHINE
 redemarrer_machine() {
@@ -476,6 +511,9 @@ executer_script_distant() {
 ouvrir_console_distante() {
     ssh -p $port_ssh -t "${machine_user}@${machine_ip}" 'clear; echo ""; echo "  Machine : $(hostname)"; echo "  IP : '"$machine_ip"'"; echo ""; echo "  Tapez *exit* pour revenir au menu"; echo ""; exec bash'
 }
+###############################################################
+#                   FONCTIONS UTILISATEURS                    #
+###############################################################
 
 #FONCTION POUR AFFICHE LES PERMISSIONS DUN FICHIER
 afficher_permissions_utilisateur() {
@@ -788,7 +826,9 @@ ajouter_utilisateur_groupe() {
         demander_confirmation "Voulez-vous ajouter un autre utilisateur ?" || return
     done
 }
-
+###############################################################
+#                           MENUS                             #
+###############################################################
 #FONCTION POUR AFFICHE LE MENU DES REPERTOIRES
 menu_repertoires() {
     while true; do
@@ -1072,7 +1112,9 @@ nettoyer() {
     clear
 }
 trap nettoyer EXIT SIGINT SIGTERM
-
+###############################################################
+#                DEMARRAGE DU SCRIPT                          #
+###############################################################
 if ! command -v dialog &>/dev/null; then
     echo ""
     echo "ERREUR :dialog n'est pas installe"

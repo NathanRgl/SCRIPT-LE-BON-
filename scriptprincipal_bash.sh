@@ -5,6 +5,10 @@
 #                          WILD_CODE_SCHOOL                      #
 ##################################################################
 
+###############################################################
+#                CONFIGURATION ET VARIABLES                   #
+###############################################################
+
 port_ssh="22222"
 script_dir="$(cd "$(dirname "$0")" && pwd)"
 ip_reseau="172.16.20."
@@ -18,13 +22,22 @@ utilisateurs_windows=("wilder1" "wilder" "admin" "administrateur" "administrator
 date_actuelle=$(date "+%Y-%m-%d")
 heure_actuelle=$(date "+%H-%M-%S")
 local_ip=""
+
+log_dir="/var/log"
+log_file="$log_dir/log_evt.log"
+info_dir="$script_dir/info"
+
+###############################################################
+#                      TABLEAU                                #
+###############################################################
 declare -a liste_ip
 declare -A noms_machines
 declare -A type_os
 declare -A utilisateur_windows 
-log_dir="/var/log"
-log_file="$log_dir/log_evt.log"
-info_dir="$script_dir/info"
+
+###############################################################
+#            FONCTIONS DE JOURNALISATION                      #
+###############################################################
 
 #FONCTION QUI PREPARE LE FICHIER DE LOG ET LE DOSSIER INFO
 initialiser_journal() {
@@ -107,6 +120,10 @@ recuperer_info_windows() {
     fi
 }
 
+###################################################################################
+#        FONCTIONS POUR DETECTER  UTILISATEURS WINDOWS/SYSTEME/NOM DE MACHINE     #
+###################################################################################
+
 #FONCTION QUI CHERCHE QUEL UTILISATEUR WINDOWS PEUT SE CONNECTER EN SSH
 trouver_utilisateur_windows() {
     local ip="$1"
@@ -164,6 +181,10 @@ recuperer_nom_machine() {
     fi
 }
 
+##################################################################################
+#                     FONCTION POUR SCANNER LE RESEAU                            #
+##################################################################################
+
 #FONCTION POUR SCANNER LE RESEAU
 scanner_reseau() {
     liste_ip=()
@@ -219,6 +240,10 @@ scanner_reseau() {
     fi
     rm -f "$fichier_temp" "$fichier_noms"
 }
+
+##################################################################################
+#                   FONCTIONS DE CONNEXION AUX MACHINES                          #
+##################################################################################
 
 #FONCTION POUR SE CONNECTER A UNE MACHINE LINUX
 connexion_machine_linux() {
@@ -290,6 +315,10 @@ connexion_machine() {
         return 1
     fi
 }
+
+##################################################################################
+#                            MENU PRINCIPAL                                      #
+##################################################################################
 
 BLEU='\e[34m'
 BLANC='\e[97m'
@@ -413,6 +442,10 @@ menu_principal() {
         esac
     done
 }
+
+##################################################################################
+#                         DEMARRAGE DU SCRIPT PRINCIPAL                          #
+##################################################################################
 
 initialiser_journal
 sauvegarder_log "StartScript"
