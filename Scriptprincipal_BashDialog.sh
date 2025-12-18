@@ -57,7 +57,7 @@ use_colors = ON" > "$DIALOGRC"
 ip_reseau="172.16.20."
 
 #PORT SSH
-port_ssh="22222"
+export port_ssh="22222"
 
 #DELAI MAXIMUM POUR LE PING
 delai_ping=1
@@ -68,7 +68,7 @@ fichier_noms="/tmp/scriptbash_noms_$$.txt"
 fichier_result="/tmp/scriptbash_result_$$.txt"
 
 #UTILISATEUR 
-utilisateur_linux="wilder"
+export utilisateur_linux="wilder"
 
 #IP LOCALE POUR NE PAS L4AFFICHER 
 local_ip=""
