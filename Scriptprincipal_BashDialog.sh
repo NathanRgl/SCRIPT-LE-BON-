@@ -228,25 +228,93 @@ recuperer_nom_machine() {
 export -f recuperer_nom_machine
 #############################################################
 #FONCTION POUR SCANNE LE RESEAU ET TROUVER LES MACHINES LINUX
-#FONCTION POUR SCANNE LE RESEAU ET TROUVER LES MACHINES LINUX
 scanner_reseau() {
     #ON REINITIALISE LES TABLEAUX
     liste_ip=()
     noms_machines=()
     
-    #MESSAGE DE CHARGEMENT
-    dialog --backtitle "$BACKTITLE" \
-        --title "[ SCAN ]" \
-        --infobox "\nScan en cours...\n" 5 30
+    #VIDE LES FICHIERS TEMPORAIRES
+    > "$fichier_temp"
+    > "$fichier_noms"
     
-    #TEST DIRECT SUR UNE SEULE IP
-    local ip="172.16.20.30"
-    
-    if ssh -p $port_ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no -o BatchMode=yes "${utilisateur_linux}@${ip}" "uname" 2>/dev/null | grep -qi "linux"; then
-        local nom=$(ssh -p $port_ssh -o ConnectTimeout=3 -o BatchMode=yes -o StrictHostKeyChecking=no "${utilisateur_linux}@${ip}" "hostname" 2>/dev/null | tr -d '\r')
-        liste_ip+=("$ip")
-        noms_machines["$ip"]="$nom"
+    #ON RECUPERE LIP LOCALE SI PAS DEJA FAIT
+    if [ -z "$local_ip" ]; then
+        local_ip=$(hostname -I 2>/dev/null | tr ' ' '\n' | grep "^$ip_reseau" | head -n1)
     fi
+    
+    #ETAPE 1 : PING AVEC BARRE DE PROGRESSION
+    (
+        for i in $(seq 1 254); do
+            local ip="${ip_reseau}${i}"
+            
+            (
+                ping -c 1 -W "$delai_ping" "$ip" &>/dev/null && echo "$ip" >> "$fichier_temp"
+            ) &
+            
+            if [ $((i % 50)) -eq 0 ]; then
+                wait
+            fi
+            
+            local points_num=$(( (i / 20) % 3 ))
+            local points=""
+            case $points_num in
+                0) points="." ;;
+                1) points=".." ;;
+                2) points="..." ;;
+            esac
+            
+            local pct=$(( i * 100 / 254 ))
+            
+            echo "XXX"
+            echo "$pct"
+            echo "\nRecherche des machines$points\n\nAdresse: $ip"
+            echo "XXX"
+        done
+        wait
+    ) | dialog --backtitle "$BACKTITLE" \
+            --title "[ SCAN DU RESEAU ]" \
+            --gauge "\nRecherche des machines...\n" 10 55 0
+    
+    #ETAPE 2 : DETECTION SSH HORS SOUS-SHELL
+    if [ -s "$fichier_temp" ]; then
+        #ON LIT LE FICHIER DANS UN TABLEAU
+        local ips_trouvees=()
+        while read -r ligne; do
+            [ -n "$ligne" ] && ips_trouvees+=("$ligne")
+        done < "$fichier_temp"
+        
+        local total=${#ips_trouvees[@]}
+        local count=0
+        
+        for ip in "${ips_trouvees[@]}"; do
+            if [ "$ip" != "$local_ip" ]; then
+                local points_num=$(( (count / 2) % 3 ))
+                local points=""
+                case $points_num in
+                    0) points="." ;;
+                    1) points=".." ;;
+                    2) points="..." ;;
+                esac
+                
+                local pct=$(( count * 100 / total ))
+                
+                echo "$pct" | dialog --backtitle "$BACKTITLE" \
+                    --title "[ VERIFICATION SSH ]" \
+                    --gauge "\nVerification SSH$points\n\nAdresse: $ip" 10 55
+                
+                if ssh -p $port_ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no -o BatchMode=yes "${utilisateur_linux}@${ip}" "uname" 2>/dev/null | grep -qi "linux"; then
+                    local nom=$(ssh -p $port_ssh -o ConnectTimeout=3 -o BatchMode=yes -o StrictHostKeyChecking=no "${utilisateur_linux}@${ip}" "hostname" 2>/dev/null | tr -d '\r')
+                    [ -z "$nom" ] && nom="?"
+                    liste_ip+=("$ip")
+                    noms_machines["$ip"]="$nom"
+                fi
+            fi
+            count=$((count + 1))
+        done
+    fi
+    
+    #ON SUPPRIME LES FICHIERS TEMPORAIRES
+    rm -f "$fichier_temp" "$fichier_noms"
     
     #SI ON A TROUVE AU MOINS UNE MACHINE
     [ ${#liste_ip[@]} -gt 0 ]
