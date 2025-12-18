@@ -237,12 +237,12 @@ scanner_reseau() {
     > "$fichier_temp"
     > "$fichier_noms"
     
-    #ON RECUPERE LIP LOCALE SI PAS DEJA FAIT
+    #ON RECUPERE LIP LOCALE 
     if [ -z "$local_ip" ]; then
         local_ip=$(hostname -I 2>/dev/null | tr ' ' '\n' | grep "^$ip_reseau" | head -n1)
     fi
     
-    #ETAPE 1 : PING AVEC BARRE DE PROGRESSION
+    #PING 
     (
         for i in $(seq 1 254); do
             local ip="${ip_reseau}${i}"
@@ -275,7 +275,7 @@ scanner_reseau() {
             --title "[ SCAN DU RESEAU ]" \
             --gauge "\nScan du reseau en cours...\n" 10 55 0
     
-    #ETAPE 2 : DETECTION SSH SILENCIEUSE
+    #DETECTION SSH
     if [ -s "$fichier_temp" ]; then
         local ips_trouvees=()
         while read -r ligne; do
@@ -404,22 +404,10 @@ afficher_applications_installees() {
     #ON RECUPERE LA LISTE DES APPLICATIONS
     local liste_apps=$(executer_ssh "dpkg -l 2>/dev/null | grep '^ii' | awk '{print \$2}'")
     
-    #ON COMPTE LE NOMBRE DAPPLICATIONS
-    local nb_apps=$(echo "$liste_apps" | wc -l)
-    
-    #ON LIMITE A 30 LIGNES POUR LAFFICHAGE
-    local result=$(echo "$liste_apps" | head -30)
-    
-    if [ -z "$result" ]; then
+    if [ -z "$liste_apps" ]; then
         afficher_erreur "Impossible de recuperer les applications"
     else
-        #ON REGARDE SI LA LISTE EST PETITE OU GRANDE
-        if [ "$nb_apps" -gt 30 ]; then
-            result="$result
-
-=== LISTE DES APPLICATIONS ENREGISTREE ($nb_apps APPLICATIONS) ==="
-        fi
-        afficher_texte "APPLICATIONS INSTALLEES" "$result"
+        afficher_texte "APPLICATIONS INSTALLEES" "$liste_apps"
     fi
 }
 #############################################################
@@ -465,19 +453,9 @@ afficher_services_en_cours() {
     #ON RECUPERE LA LISTE DES SERVICES EN COURS 
     local liste_services=$(executer_ssh "systemctl list-units --type=service --state=running --no-pager 2>/dev/null | grep '.service'")
     
-    #NOMBRE DE LIGNES
-    local nb_lignes=$(echo "$liste_services" | wc -l)
-    
     if [ -z "$liste_services" ]; then
         afficher_erreur "Impossible de recuperer les services"
     else
-        #ON REGARDE SI LA LISTE EST PETITE OU GRANDE
-        if [ "$nb_lignes" -gt 20 ]; then
-            liste_services=$(echo "$liste_services" | head -20)
-            liste_services="$liste_services
-
-=== LISTE DES SERVICES ENREGISTREE ($nb_lignes SERVICES) ==="
-        fi
         afficher_texte "SERVICES EN COURS D'EXECUTION" "$liste_services"
     fi
 }
