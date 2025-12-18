@@ -141,7 +141,6 @@ demander_saisie() {
     local saisie
     saisie=$(dialog --backtitle "$BACKTITLE" \
         --title "[ $titre ]" \
-        --cancel-label "Retour" \
         --cancel-label "Retour" --stdout \
         --inputbox "$message" 12 60)
     local ret=$?
@@ -158,7 +157,6 @@ demander_mot_de_passe() {
     local mdp
     mdp=$(dialog --backtitle "$BACKTITLE" \
         --title "[ $titre ]" \
-        --cancel-label "Retour" \
         --cancel-label "Retour" --stdout \
         --insecure \
         --passwordbox "$message" 10 50)
@@ -168,12 +166,13 @@ demander_mot_de_passe() {
     fi
     return $ret
 }
+
 ##############################################################
 #FONCTION POUR AFFICHE DU TEXTE
 afficher_texte() {
     local titre="$1"
     local contenu="$2"
-    echo "$contenu" > "$fichier_result"
+    echo -e "$contenu" > "$fichier_result"
     dialog --backtitle "$BACKTITLE" \
         --title "[ $titre ]" \
         --exit-label "Retour" \
@@ -212,7 +211,6 @@ detecter_linux() {
     fi
     return 1
 }
-export -f detecter_linux
 #############################################################
 #FONCTION POUR RECUPERE LE NOM D4UNE MACHINE VIA SSH
 recuperer_nom_machine() {
@@ -225,7 +223,6 @@ recuperer_nom_machine() {
         noms_machines["$ip"]="?"
     fi
 }
-export -f recuperer_nom_machine
 #############################################################
 #FONCTION POUR SCANNE LE RESEAU ET TROUVER LES MACHINES LINUX
 scanner_reseau() {
@@ -1117,7 +1114,6 @@ menu_repertoires() {
         local choix
         choix=$(dialog --backtitle "$BACKTITLE" \
             --title "[ REPERTOIRES ]" \
-            --cancel-label "Retour" \
             --cancel-label "Retour" --stdout \
             --menu "\nMachine : $machine_nom\nIP : $machine_ip\n" \
             $HAUTEUR $LARGEUR $MENU_HAUTEUR \
@@ -1139,7 +1135,6 @@ menu_logiciels() {
         local choix
         choix=$(dialog --backtitle "$BACKTITLE" \
             --title "[ LOGICIELS ]" \
-            --cancel-label "Retour" \
             --cancel-label "Retour" --stdout \
             --menu "\nMachine : $machine_nom\nIP : $machine_ip\n" \
             $HAUTEUR $LARGEUR $MENU_HAUTEUR \
@@ -1161,7 +1156,7 @@ menu_services() {
         local choix
         choix=$(dialog --backtitle "$BACKTITLE" \
             --title "[ GESTION DES SERVICES ]" \
-            --cancel-label "Retour" \
+            --cancel-label "Retour" --stdout \
             --menu "\nMachine : $machine_nom\nIP : $machine_ip\n" \
             $HAUTEUR $LARGEUR $MENU_HAUTEUR \
             "1" "Lister les services en cours")
@@ -1180,7 +1175,6 @@ menu_reseau() {
         local choix
         choix=$(dialog --backtitle "$BACKTITLE" \
             --title "[ RESEAU ]" \
-            --cancel-label "Retour" \
             --cancel-label "Retour" --stdout \
             --menu "\nMachine : $machine_nom\nIP : $machine_ip\n" \
             $HAUTEUR $LARGEUR $MENU_HAUTEUR \
@@ -1204,7 +1198,6 @@ menu_systeme() {
         local choix
         choix=$(dialog --backtitle "$BACKTITLE" \
             --title "[ SYSTEME ]" \
-            --cancel-label "Retour" \
             --cancel-label "Retour" --stdout \
             --menu "\nMachine : $machine_nom\nIP : $machine_ip\n" \
             $HAUTEUR $LARGEUR $MENU_HAUTEUR \
@@ -1226,7 +1219,6 @@ menu_controles() {
         local choix
         choix=$(dialog --backtitle "$BACKTITLE" \
             --title "[ CONTROLES ]" \
-            --cancel-label "Retour" \
             --cancel-label "Retour" --stdout \
             --menu "\nMachine : $machine_nom\nIP : $machine_ip\n" \
             $HAUTEUR $LARGEUR $MENU_HAUTEUR \
@@ -1250,7 +1242,6 @@ menu_utilisateurs() {
         local choix
         choix=$(dialog --backtitle "$BACKTITLE" \
             --title "[ GESTION DES UTILISATEURS ]" \
-            --cancel-label "Retour" \
             --cancel-label "Retour" --stdout \
             --menu "\nMachine : $machine_nom\nIP : $machine_ip\n" \
             $HAUTEUR $LARGEUR $MENU_HAUTEUR \
@@ -1284,7 +1275,6 @@ menu_gestion_machine() {
         local choix
         choix=$(dialog --backtitle "$BACKTITLE" \
             --title "[ GESTION DE LA MACHINE ]" \
-            --cancel-label "Retour" \
             --cancel-label "Retour" --stdout \
             --menu "\nMachine : $machine_nom\nIP : $machine_ip\nUtilisateur : $machine_user\n" \
             $HAUTEUR $LARGEUR $MENU_HAUTEUR \
@@ -1314,7 +1304,6 @@ menu_client() {
         local choix
         choix=$(dialog --backtitle "$BACKTITLE" \
             --title "[ MENU PRINCIPAL ]" \
-            --cancel-label "Retour" \
             --cancel-label "Retour" --stdout \
             --menu "\nMachine : $machine_nom\nIP : $machine_ip\nUtilisateur : $machine_user\n" \
             $HAUTEUR $LARGEUR $MENU_HAUTEUR \
@@ -1345,8 +1334,7 @@ afficher_liste_machines() {
         choix=$(dialog --backtitle "$BACKTITLE" \
             --title "[ MACHINES DISPONIBLES ]" \
             --cancel-label "Retour" \
-            --extra-button --extra-label "Rescanner" \
-            --cancel-label "Retour" --stdout \
+            --extra-button --extra-label "Rescanner" --stdout \
             --menu "\nSelectionnez une machine :\n" \
             $HAUTEUR $LARGEUR $MENU_HAUTEUR \
             "${options[@]}")
@@ -1379,8 +1367,7 @@ menu_principal() {
         local choix
         choix=$(dialog --backtitle "$BACKTITLE" \
             --title "[ SCRIPT PRINCIPAL ]" \
-            --cancel-label "Quitter" \
-            --cancel-label "Retour" --stdout \
+            --cancel-label "Quitter" --stdout \
             --menu "\n\
  ██╗    ██╗██╗██╗     ██████╗      ██████╗ ██████╗ ██████╗ ███████╗\n\
  ██║    ██║██║██║     ██╔══██╗    ██╔════╝██╔═══██╗██╔══██╗██╔════╝\n\
