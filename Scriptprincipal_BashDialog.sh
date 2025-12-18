@@ -56,6 +56,9 @@ use_colors = ON" > "$DIALOGRC"
 #RESEAU A SCANNER
 ip_reseau="172.16.20."
 
+#PORT SSH
+port_ssh="22222"
+
 #DELAI MAXIMUM POUR LE PING
 delai_ping=1
 
@@ -190,9 +193,7 @@ afficher_chargement() {
 #FONCTION POUR EXECUTE UNE COMMANDE SSH SUR LA MACHINE DISTANTE
 executer_ssh() {
     local commande="$1"
-    ssh -o ConnectTimeout=10 -o BatchMode=yes -o StrictHostKeyChecking=no "${machine_user}@${machine_ip}" "$commande" 2>&1 
-
-
+    ssh -p $port_ssh -o ConnectTimeout=10 -o BatchMode=yes -o StrictHostKeyChecking=no "${machine_user}@${machine_ip}" "$commande" 2>&1 
 }
 ###############################################################
 #                 FONCTION AFFICHER UTILISATEURS              #
@@ -207,7 +208,7 @@ afficher_utilisateurs_locaux() {
 #FONCTION POUR DETECTE SI UNE MACHINE EST LINUX VIA SSH
 detecter_linux() {
     local ip="$1"
-    if timeout 2 ssh -o ConnectTimeout=2 -o StrictHostKeyChecking=no -o BatchMode=yes "${utilisateur_linux}@${ip}" "uname" 2>/dev/null | grep -qi "linux"; then
+    if timeout 2 ssh -p $port_ssh -o ConnectTimeout=2 -o StrictHostKeyChecking=no -o BatchMode=yes "${utilisateur_linux}@${ip}" "uname" 2>/dev/null | grep -qi "linux"; then
         return 0
     fi
     return 1
@@ -222,7 +223,7 @@ recuperer_nom_machine() {
     local nom=""
     
     #ON SE CONNECTE EN SSH ET ON EXECUTE LA COMMANDE *HOSTNAME*
-    nom=$(ssh -o ConnectTimeout=3 -o BatchMode=yes -o StrictHostKeyChecking=no "${utilisateur_linux}@${ip}" "hostname" 2>/dev/null | tr -d '\r')
+    nom=$(ssh -p $port_ssh -o ConnectTimeout=3 -o BatchMode=yes -o StrictHostKeyChecking=no "${utilisateur_linux}@${ip}" "hostname" 2>/dev/null | tr -d '\r')
     
     #SI ON A RECUPERE UN NOM ON LE STOCKE DANS LE TABLEAU
     if [ -n "$nom" ]; then
@@ -718,8 +719,7 @@ executer_script_distant() {
 #############################################################
 #FONCTION POUR OUVRE UNE CONSOLE
 ouvrir_console_distante() {
-    #ON LANCE UN NOUVEAU SHELL BASH VIA SSH
-    ssh -t "${machine_user}@${machine_ip}" 'clear; echo ""; echo "  Machine : $(hostname)"; echo "  IP : '"$machine_ip"'"; echo ""; echo "  Tapez *exit* pour revenir au menu"; echo ""; exec bash'
+    ssh -p $port_ssh -t "${machine_user}@${machine_ip}" 'clear; echo ""; echo "  Machine : $(hostname)"; echo "  IP : '"$machine_ip"'"; echo ""; echo "  Tapez *exit* pour revenir au menu"; echo ""; exec bash'
 }
 ###############################################################
 #                   FONCTIONS UTILISATEURS                    #
