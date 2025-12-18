@@ -59,7 +59,7 @@ ip_reseau="172.16.20."
 #PORT SSH
 export port_ssh="22222"
 
-#DELAI MAXIMUM POUR LE PING
+#DELAI PING
 delai_ping=1
 
 #FICHIERS_TEMPORAIRES
@@ -123,7 +123,7 @@ afficher_avertissement() {
         --msgbox "$1" 10 55
 }
 ##############################################################
-#FONCTION POUR DEMANDER UNE CONFIRMATION O/N
+#CONFIRMATION O/N
 demander_confirmation() {
     dialog --backtitle "$BACKTITLE" \
         --title "[ CONFIRMATION ]" \
@@ -150,7 +150,7 @@ demander_saisie() {
     return $ret
 }
 ##############################################################
-#FONCTION POUR DEMANDE UN MOT DE PASSE
+#FONCTION POUR DEMANDE UN MDP
 demander_mot_de_passe() {
     local titre="$1"
     local message="$2"
@@ -166,7 +166,6 @@ demander_mot_de_passe() {
     fi
     return $ret
 }
-
 ##############################################################
 #FONCTION POUR AFFICHE DU TEXTE
 afficher_texte() {
@@ -179,7 +178,7 @@ afficher_texte() {
         --textbox "$fichier_result" $HAUTEUR $LARGEUR
 }
 ##############################################################
-#FONCTION POUR AFFICHE UN MESSAGE DE CHARGEMENT
+#MESSAGE DE CHARGEMENT
 afficher_chargement() {
     local message="$1"
     dialog --backtitle "$BACKTITLE" \
@@ -204,6 +203,7 @@ afficher_utilisateurs_locaux() {
 ###############################################################
 #                        DETECTION RESEAU                     #
 ###############################################################
+#DETECTE MACHINE
 detecter_linux() {
     local ip="$1"
     if ssh -p $port_ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no -o BatchMode=yes "${utilisateur_linux}@${ip}" "uname" 2>/dev/null | grep -qi "linux"; then
@@ -418,7 +418,7 @@ afficher_mises_a_jour_manquantes() {
     #ON RECUPERE LA LISTE DES MISES A JOUR DE SECURITE 
     local liste_maj=$(executer_ssh "apt-get -s upgrade 2>/dev/null | grep '^Inst' | grep -i 'security' | awk '{print \$2}'")
     
-    #SI LA LISTE EST VIDE ON ESSAIE UNE AUTRE SOLUTION 
+    #SI LA LISTE EST VIDE ON ESSAIE UNE AUTRE 
     if [ -z "$liste_maj" ]; then
         liste_maj=$(executer_ssh "apt list --upgradable 2>/dev/null | grep -i 'security' | cut -d'/' -f1 | grep -v '^Listing'")
     fi
@@ -1008,7 +1008,7 @@ ajouter_utilisateur_groupe_admin() {
         afficher_chargement "Ajout au groupe sudo..."
         local result=$(executer_ssh "sudo usermod -aG sudo '$NomUtilisateur' 2>&1")
         
-        #ON REGARDE SI LUTILISATEUR EST BIEN DANS LE GROUPE SUDO
+        #ON REGARDE SI LUTILISATEUR EST DANS LE GROUPE SUDO
         local verif=$(executer_ssh "id -nG '$NomUtilisateur' | grep -w 'sudo'")
         if [ -n "$verif" ]; then
             afficher_succes "UTILISATEUR \"$NomUtilisateur\" AJOUTE AU GROUPE *SUDO*"
@@ -1129,7 +1129,7 @@ menu_repertoires() {
     done
 }
 #############################################################
-#FONCTION POUR AFFICHE LE MENU DES LOGICIELS
+#FONCTION POUR AFFICHE LE MENU LOGICIELS
 menu_logiciels() {
     while true; do
         local choix
@@ -1150,7 +1150,7 @@ menu_logiciels() {
     done
 }
 #############################################################
-#FONCTION POUR AFFICHE LE MENU DES SERVICES
+#FONCTION POUR AFFICHE LE MENU SERVICES
 menu_services() {
     while true; do
         local choix
@@ -1213,7 +1213,7 @@ menu_systeme() {
     done
 }
 #############################################################
-#FONCTION POUR AFFICHE LE MENU DES CONTROLES
+#FONCTION POUR AFFICHE LE MENU CONTROLES
 menu_controles() {
     while true; do
         local choix
@@ -1236,7 +1236,7 @@ menu_controles() {
     done
 }
 #############################################################
-#FONCTION POUR AFFICHE LE MENU DES UTILISATEURS
+#FONCTION POUR AFFICHE LE MENU  UTILISATEURS
 menu_utilisateurs() {
     while true; do
         local choix
@@ -1269,7 +1269,7 @@ menu_utilisateurs() {
     done
 }
 #############################################################
-#FONCTION POUR AFFICHE LE MENU DE GESTION DE LA MACHINE
+#FONCTION POUR AFFICHE LE MENU GESTION DE LA MACHINE
 menu_gestion_machine() {
     while true; do
         local choix
@@ -1419,7 +1419,6 @@ trap nettoyer EXIT SIGINT SIGTERM
 ###############################################################
 #                DEMARRAGE DU SCRIPT                          #
 ###############################################################
-
 #############################################################
 #ON VERIFIE QUE DIALOG EST INSTALLE
 if ! command -v dialog &>/dev/null; then
