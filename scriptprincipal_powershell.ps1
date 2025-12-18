@@ -373,7 +373,7 @@ function MenuPrincipal {
         Write-Host ""
         Write-Host "1.SE CONNECTER A UNE MACHINE"
         Write-Host "Q.QUITTER"
-        Write-Host "___________________________"
+        Write-Host "______________________________"
         Write-Host ""
         Write-Host "CHOISISSEZ UNE OPTION [1 OU Q]: " -NoNewline
         $cursorPos = $Host.UI.RawUI.CursorPosition
