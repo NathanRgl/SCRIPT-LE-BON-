@@ -9,7 +9,7 @@
 #                CONFIGURATION ET VARIABLES                   #
 ###############################################################
 
-#PORT POUR LES CONNEXIONS SSH
+#PORT POUR LES CONNEXIONS SSHH
 port_ssh="22222"
 # DOSSIER OU SE TROUVE LE SCRIPT PRINCIPAL
 script_dir="$(cd "$(dirname "$0")" && pwd)"
@@ -33,7 +33,7 @@ utilisateurs_windows=("wilder1" "wilder" "admin" "administrateur" "administrator
 date_actuelle=$(date "+%Y-%m-%d")
 #HEURE
 heure_actuelle=$(date "+%H-%M-%S")
-#ADRESSE IP LOCAL POUR NE PAS LE METTRE DANS LA LISTE
+#ADRESSE IP LOCAL POUR NE PAS LE METTRE DANS LA LISTEE
 local_ip=""
 #TABLEAU OU ON GARDE TOUTES LES ADRESSES IP TROUVEES SUR LE RESEAU
 declare -a liste_ip
@@ -48,10 +48,10 @@ declare -A utilisateur_windows
 #CONFIGURATION DE LA JOURNALISATION
 ###############################################################
 
-#CHEMIN DU DOSSIER OU ON MET LE FICHIER DE LOG
+#EMPLACEMENT DU DOSSIER OU ON MET LE FICHIER DE LOG
 log_dir="/var/log"
 
-#CHEMIN COMPLET DU FICHIER DE LOG
+#EMPLACEMENT COMPLET DU FICHIER DE LOG
 log_file="$log_dir/log_evt.log"
 
 #DOSSIER OU ON MET LES INFORMATIONS RECUPEREES SUR LES MACHINES
@@ -62,7 +62,7 @@ info_dir="$script_dir/info"
 ###############################################################
 
 ####################################################################
-#FONCTION QUI PREPARE LE FICHIER DE LOG ET LE DOSSIER INFO
+#FFONCTION QUI PREPARE LE FICHIER DE LOG ET LE DOSSIER INFO
 initialiser_journal() {
 
     #ON REGARDE SI LE FICHIER DE LOG EXISTE DEJA SUR LE SERVEUR
@@ -97,18 +97,18 @@ initialiser_journal() {
         fi
 
     else
-        #LE FICHIER DE LOG NEXISTE PAS DONC ON VA LE CREER
+        #LE FICHIER DE LOG NEXISTE PAS DONC ON LE CREER
         echo "CREATION DU FICHIER DE LOG DANS VAR LOG"
 
-        #ON PREVIENT QU IL FAUDRA PEUT ETRE LE MOT DE PASSE SUDO
+        #ON PREVIENT QU IL FAUDRA PEUT ETRE LE MDP SUDO
         echo "MOT DE PASSE SUDO REQUIS"
 
-        #ON CREE LE FICHIER AVEC SUDO ET ON MET LES DROITS POUR TOUT LE MONDE
+        #ON CREE LE FICHIER AVEC SUDO ET ON MET LES DROITS
         sudo touch "$log_file" 2>/dev/null && sudo chmod 666 "$log_file" 2>/dev/null
 
         #ON REGARDE SI LA CREATION A MARCHE OU PAS
         if [ $? -ne 0 ]; then
-            #LA CREATION NA PAS MARCHE DONC ON MET LE LOG DANS LE SCRIPT
+            #LA CREATION NA PAS MARCHE 
             echo "IMPOSSIBLE DE CREER LE FICHIER DANS VAR LOG LE LOG SERA DANS LE SCRIPT"
 
             #ON MET LE LOG DANS LE MEME DOSSIER QUE LE SCRIPT
@@ -135,25 +135,25 @@ initialiser_journal() {
 #FONCTION QUI ENREGISTRE UN EVENEMENT DANS LE FICHIER DE LOG
 #LE FORMAT EST DATE HEURE UTILISATEUR EVENEMENT
 sauvegarder_log() {
-    #ON RECUPERE LE NOM DE L EVENEMENT PASSE EN ARGUMENT
+    #ON RECUPERE LE NOM DE LEVENEMENT PASSE EN ARGUMENT
     local evenement="$1"
 
-    #ON DECLARE UNE VARIABLE POUR LA DATE
+    # VARIABLE DATE
     local date_evt
 
-    #ON DECLARE UNE VARIABLE POUR LHEURE
+    #VARIABLE  LHEURE
     local heure_evt
 
-    #ON DECLARE UNE VARIABLE POUR LUTILISATEUR
+    #VARIABLE UTILISATEUR
     local utilisateur_evt
 
-    #ON RECUPERE LA DATE DU JOUR AU FORMAT ANNEE MOIS JOUR
+    #DATE DU JOUR AU FORMAT ANNEE-MOIS-JOUR
     date_evt=$(date "+%Y%m%d")
 
-    #ON RECUPERE L HEURE ACTUELLE AU FORMAT HEURE MINUTE SECONDE
+    #HEURE ACTUELLE  HEURE-MINUTE-SECONDE
     heure_evt=$(date "+%H%M%S")
 
-    #ON RECUPERE LE NOM DE L UTILISATEUR QUI LANCE LE SCRIPT
+    #NOM UTILISATEUR QUI LANCE LE SCRIPT
     utilisateur_evt="${USER:-inconnu}"
 
     #ON ECRIT LA LIGNE DANS LE FICHIER DE LOG
@@ -162,10 +162,10 @@ sauvegarder_log() {
 ####################################################################
 #FONCTION QUI RECUPERE LES FICHIERS INFO ET LOG SUR UNE MACHINE LINUX
 recuperer_info_linux() {
-    #ON RECUPERE L ADRESSE IP DE LA MACHINE PASSEE EN ARGUMENT
+    #ON RECUPERE LADRESSE IP DE LA MACHINE PASSEE EN ARGUMENT
     local ip="$1"
 
-    #ON RECUPERE LE NOM DE L UTILISATEUR PASSE EN ARGUMENT
+    #ON RECUPERE LE NOM DE LUTILISATEUR PASSE EN ARGUMENT
     local utilisateur="$2"
     
     #ON REGARDE SI LE FICHIER DE LOG EXISTE SUR LA MACHINE LINUX
@@ -178,11 +178,11 @@ recuperer_info_linux() {
             #LE FICHIER A ETE COPIE DONC ON AJOUTE SON CONTENU AU LOG CENTRAL
             cat "/tmp/log_client_$$.log" >> "$log_file" 2>/dev/null
 
-            #ON SUPPRIME LE FICHIER TEMPORAIRE SUR LE SERVEUR
+            #ON SUP LE FICHIER TEMPORAIRE SUR LE SERVEUR
             rm -f "/tmp/log_client_$$.log"
         fi
 
-        #ON SUPPRIME LE FICHIER DE LOG SUR LA MACHINE LINUX
+        #ON SUP LE FICHIER DE LOG SUR LA MACHINE LINUX
         ssh -p $port_ssh -o batchmode=yes "${utilisateur}@${ip}" "rm -f /tmp/log_evt.log" 2>/dev/null
     fi
     
@@ -191,7 +191,7 @@ recuperer_info_linux() {
         #LE DOSSIER EXISTE DONC ON COPIE TOUS LES FICHIERS SUR LE SERVEUR
         scp -P $port_ssh -q -o stricthostkeychecking=no "${utilisateur}@${ip}:/tmp/info/*" "$info_dir/" 2>/dev/null
 
-        #ON SUPPRIME LE DOSSIER INFO SUR LA MACHINE LINUX
+        #ON SUP LE DOSSIER INFO SUR LA MACHINE LINUX
         ssh -p $port_ssh -o batchmode=yes "${utilisateur}@${ip}" "rm -rf /tmp/info" 2>/dev/null
     fi
 }
@@ -201,7 +201,7 @@ recuperer_info_windows() {
     #ON RECUPERE L ADRESSE IP DE LA MACHINE PASSEE EN ARGUMENT
     local ip="$1"
 
-    #ON RECUPERE LE NOM DE L UTILISATEUR PASSE EN ARGUMENT
+    #ON RECUPERE LE NOM DE LUTILISATEUR PASSE EN ARGUMENT
     local utilisateur="$2"
     
     #ON REGARDE SI LE FICHIER DE LOG EXISTE DANS DOCUMENTS SUR WINDOWS
@@ -380,7 +380,7 @@ scanner_reseau() {
         #ON FABRIQUE LADRESSE IP COMPLETE AVEC LE NUMERO
         local ip="${ip_reseau}${i}"
 
-        #ON LANCE LE PING EN ARRIERE PLAN POUR ALLER PLUS VITE
+        #ON LANCE LE PING EN ARRIERE PLAN 
         (
             #ON ENVOIE UN SEUL PING AVEC UN DELAI MAXIMUM
             ping -c 1 -W "$delai_ping" "$ip" &>/dev/null
@@ -725,7 +725,6 @@ menu_principal() {
                     while true; do
                         
                         clear
-
                         #BANNIERE BLEU-BLANC-ROUGE
                         printf "%b\n" "${BLEU}####################${BLANC}##############${ROUGE}####################${RESET}"
                         printf "%b\n" "${BLEU}#${RESET}                  ${BLANC}SCRIPT_PRINCIPAL${RESET}                  ${ROUGE}#${RESET}"
@@ -828,16 +827,14 @@ menu_principal() {
                     done
 
                 else
-                    #AUCUNE MACHINE NA ETE TROUVEE SUR LE RESEAU
                     echo ""
 
                     #ON AFFICHE UN MESSAGE POUR PREVENIR LUTILISATEUR
                     echo "AUCUNE MACHINE TROUVEE SUR LE RESEAU"
 
-                    #ON AFFICHE UN MESSAGE DE RETOUR
                     echo "RETOUR AU MENU"
 
-                    #UNE SECONDE AVANT DE REVENIR AU MENU
+                    #UNE SECONDE POUR REVENIR AU MENU
                     sleep 1
                 fi
                 ;;
@@ -856,14 +853,14 @@ menu_principal() {
                 echo ""
                 echo "CHOIX INVALIDE"
 
-                #UNE SECONDE AVANT DE REAFFICHER LE MENU
+                #UNE SECONDE POUR REAFFICHER LE MENU
                 sleep 1
                 ;;
         esac
     done
 }
 ##################################################################################
-#DEMARRAGE DU SCRIPT PRINCIPAL
+#                         DEMARRAGE DU SCRIPT PRINCIPAL                          #
 ##################################################################################
 
 #ON PREPARE LE FICHIER DE LOG ET LE DOSSIER INFO
@@ -874,15 +871,15 @@ sauvegarder_log "StartScript"
 
 #ON REGARDE SI LE SCRIPT LINUX EXISTE SUR LE SERVEUR
 if [ ! -f "$script_linux" ]; then
-    #LE SCRIPT NEXISTE PAS DONC ON AFFICHE UN AVERTISSEMENT
+    #LE SCRIPT NEXISTE PAS
     echo "ATTENTION SCRIPT LINUX INTROUVABLE $script_linux"
 fi
 
 #ON REGARDE SI LE SCRIPT WINDOWS EXISTE SUR LE SERVEUR
 if [ ! -f "$script_windows" ]; then
-    #LE SCRIPT NEXISTE PAS DONC ON AFFICHE UN AVERTISSEMENT
+    #LE SCRIPT NEXISTE PAS 
     echo "ATTENTION SCRIPT WINDOWS INTROUVABLE $script_windows"
 fi
 
-#MENU PRINCIPAL QUI GERE TOUT LE SCRIPT
+#MENU PRINCIPAL DU SCRIPT
 menu_principal
