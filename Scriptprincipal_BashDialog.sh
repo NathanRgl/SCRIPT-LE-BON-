@@ -212,26 +212,20 @@ detecter_linux() {
     fi
     return 1
 }
+export -f detecter_linux
 #############################################################
 #FONCTION POUR RECUPERE LE NOM D4UNE MACHINE VIA SSH
 recuperer_nom_machine() {
-    #ON RECUPERE LADRESSE IP PASSEE EN PARAMETRE
     local ip="$1"
-    
-    #STOCKE LE NOM DE LA MACHINE
     local nom=""
-    
-    #ON SE CONNECTE EN SSH ET ON EXECUTE LA COMMANDE *HOSTNAME*
     nom=$(ssh -p $port_ssh -o ConnectTimeout=3 -o BatchMode=yes -o StrictHostKeyChecking=no "${utilisateur_linux}@${ip}" "hostname" 2>/dev/null | tr -d '\r')
-    
-    #SI ON A RECUPERE UN NOM ON LE STOCKE DANS LE TABLEAU
     if [ -n "$nom" ]; then
         noms_machines["$ip"]="$nom"
-    #SINON ON MET UN *?*
     else
         noms_machines["$ip"]="?"
     fi
 }
+export -f recuperer_nom_machine
 #############################################################
 #FONCTION POUR SCANNE LE RESEAU ET TROUVER LES MACHINES LINUX
 scanner_reseau() {
