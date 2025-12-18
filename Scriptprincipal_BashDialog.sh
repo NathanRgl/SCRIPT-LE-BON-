@@ -205,10 +205,11 @@ afficher_utilisateurs_locaux() {
 ###############################################################
 #                        DETECTION RESEAU                     #
 ###############################################################
-#FONCTION POUR DETECTE SI UNE MACHINE EST LINUX VIA SSH
 detecter_linux() {
     local ip="$1"
-    if timeout 2 ssh -p $port_ssh -o ConnectTimeout=2 -o StrictHostKeyChecking=no -o BatchMode=yes "${utilisateur_linux}@${ip}" "uname" 2>/dev/null | grep -qi "linux"; then
+    local result=""
+    result=$(ssh -p $port_ssh -o ConnectTimeout=3 -o StrictHostKeyChecking=no -o BatchMode=yes "${utilisateur_linux}@${ip}" "uname" 2>/dev/null)
+    if [ "$result" = "Linux" ]; then
         return 0
     fi
     return 1
