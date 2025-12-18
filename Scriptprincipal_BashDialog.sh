@@ -242,24 +242,20 @@ scanner_reseau() {
         local_ip=$(hostname -I 2>/dev/null | tr ' ' '\n' | grep "^$ip_reseau" | head -n1)
     fi
     
-    #BARRE DE PROGRESSION
+    #ETAPE 1 : PING AVEC BARRE DE PROGRESSION
     (
-        #BOUCLE SUR LES 254 ADRESSES IP DU RESEAU
         for i in $(seq 1 254); do
-            #ADRESSE IP A TESTER
             local ip="${ip_reseau}${i}"
             
-            #ON LANCE LE PING EN ARRIERE PLAN SI LA MACHINE REPOND ON ENREGISTRE SON IP
             (
                 ping -c 1 -W "$delai_ping" "$ip" &>/dev/null && echo "$ip" >> "$fichier_temp"
             ) &
             
-            #ON ATTEND TOUTES LES 50 ADRESSES POUR NE PAS SURCHARGER
             if [ $((i % 50)) -eq 0 ]; then
                 wait
             fi
             
-            #ANIMATION POINT
+            #ANIMATION DES POINTS
             local points_num=$(( (i / 20) % 3 ))
             local points=""
             case $points_num in
@@ -268,70 +264,55 @@ scanner_reseau() {
                 2) points="..." ;;
             esac
             
-            #CALCUL DU POURCENTAGE 0 A 50%
-            local pct=$(( i * 50 / 254 ))
+            #CALCUL DU POURCENTAGE 0 A 100%
+            local pct=$(( i * 100 / 254 ))
             
-            #MISE A JOUR  BARRE DE PROGRESSION
             echo "XXX"
             echo "$pct"
-            echo "\nScan du reseau en cours$points\n\nAdresse: $ip"
+            echo "\nRecherche des machines$points\n\nAdresse: $ip"
             echo "XXX"
         done
-        
-        #ON ATTEND QUE TOUS LES PINGS SE  TERMINES
         wait
-        
-        #SI ON TROUVE DES MACHINES QUI REPONDENT
-        if [ -s "$fichier_temp" ]; then
-            #ON COMPTE LE NOMBRE DE MACHINES TROUVEES
-            local total=$(wc -l < "$fichier_temp")
-            local count=0
-            
-            #ON PARCOURT CHAQUE IP TROUVEE
-            while read -r ip; do
-                #ON IGNORE NOTRE PROPRE MACHINE
-                if [ "$ip" != "$local_ip" ] && [ -n "$ip" ]; then
-                    #ANIMATION DES POINTS
-                    local points_num=$(( (count / 5) % 3 ))
-                    local points=""
-                    case $points_num in
-                        0) points="." ;;
-                        1) points=".." ;;
-                        2) points="..." ;;
-                    esac
-                    
-                    #CALCUL DU POURCENTAGE (50 A 100%)
-                    local pct=$(( 50 + (count * 50 / total) ))
-                    
-                    #MISE A JOUR DE LA BARRE DE PROGRESSION
-                    echo "XXX"
-                    echo "$pct"
-                    echo "\nScan du reseau en cours$points\n\nAdresse: $ip"
-                    echo "XXX"
-                    
-                    #ON TESTE SI CEST UNE MACHINE LINUX ACCESSIBLE EN SSH
-                    if detecter_linux "$ip"; then
-                        #ON RECUPERE LE NOM DE LA MACHINE
-                        recuperer_nom_machine "$ip"
-                        #ON ENREGISTRE LIP ET LE NOM DANS UN FICHIER
-                        echo "$ip:${noms_machines[$ip]}" >> "$fichier_noms"
-                    fi
-                fi
-                count=$((count + 1))
-            done < "$fichier_temp"
-        fi
-        
-        # A 100%
-        echo "XXX"
-        echo "100"
-        echo "\nScan du reseau en cours...\n"
-        echo "XXX"
-        sleep 0.3
-        
-    #ON ENVOIE TOUT A DIALOG POUR AFFICHER LA BARRE DE PROGRESSION
     ) | dialog --backtitle "$BACKTITLE" \
             --title "[ SCAN DU RESEAU ]" \
-            --gauge "\nScan du reseau en cours...\n" 10 55 0
+            --gauge "\nRecherche des machines...\n" 10 55 0
+    
+    #ETAPE 2 : DETECTION SSH HORS SOUS-SHELL
+    if [ -s "$fichier_temp" ]; then
+        local total=$(wc -l < "$fichier_temp")
+        local count=0
+        
+        while read -r ip; do
+            if [ "$ip" != "$local_ip" ] && [ -n "$ip" ]; then
+                #ANIMATION DES POINTS
+                local points_num=$(( (count / 2) % 3 ))
+                local points=""
+                case $points_num in
+                    0) points="." ;;
+                    1) points=".." ;;
+                    2) points="..." ;;
+                esac
+                
+                #CALCUL DU POURCENTAGE
+                local pct=$(( count * 100 / total ))
+                
+                #AFFICHE LA BARRE DE PROGRESSION
+                echo "$pct" | dialog --backtitle "$BACKTITLE" \
+                    --title "[ VERIFICATION SSH ]" \
+                    --gauge "\nVerification SSH$points\n\nAdresse: $ip" 10 55
+                
+                #TEST SSH DIRECT
+                if ssh -p $port_ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no -o BatchMode=yes "${utilisateur_linux}@${ip}" "uname" 2>/dev/null | grep -qi "linux"; then
+                    local nom=$(ssh -p $port_ssh -o ConnectTimeout=3 -o BatchMode=yes -o StrictHostKeyChecking=no "${utilisateur_linux}@${ip}" "hostname" 2>/dev/null | tr -d '\r')
+                    if [ -z "$nom" ]; then
+                        nom="?"
+                    fi
+                    echo "$ip:$nom" >> "$fichier_noms"
+                fi
+            fi
+            count=$((count + 1))
+        done < "$fichier_temp"
+    fi
     
     #ON RECHARGE LES RESULTATS DEPUIS LE FICHIER DANS LES TABLEAUX
     liste_ip=()
@@ -341,14 +322,7 @@ scanner_reseau() {
             noms_machines["$ip"]="$nom"
         fi
     done < "$fichier_noms"
-    #DEBUG - A SUPPRIMER
-    echo "=== DEBUG ===" >> /tmp/debug_scan.txt
-    echo "fichier_temp:" >> /tmp/debug_scan.txt
-    cat "$fichier_temp" >> /tmp/debug_scan.txt 2>/dev/null
-    echo "---" >> /tmp/debug_scan.txt
-    echo "fichier_noms:" >> /tmp/debug_scan.txt
-    cat "$fichier_noms" >> /tmp/debug_scan.txt 2>/dev/null
-    echo "=== FIN ===" >> /tmp/debug_scan.txt   
+    
     #ON SUPPRIME LES FICHIERS TEMPORAIRES
     rm -f "$fichier_temp" "$fichier_noms"
     
