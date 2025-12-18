@@ -1,4 +1,4 @@
-!/bin/bash
+#!/bin/bash
 ##################################################################
 #                     SCRIPT_LINUX                               #
 #                SCRIPT_BY ANIS FRED EROS                        #

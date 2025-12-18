@@ -1,4 +1,4 @@
-!/bin/bash
+#!/bin/bash
 ##################################################################
 #                 SCRIPT PRINCIPAL AVCE DIALOG                   #
 #                    SCRIPT_BY ANIS FRED EROS                    #
