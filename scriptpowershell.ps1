@@ -731,37 +731,39 @@ function AfficherUtilisationRAM {
     Read-Host "APPUYEZ SUR [ENTREE] POUR CONTINUER"
     MenuSysteme
 }
-###################################################################
+##############################################################
+#FONCTION POUR AFFICHER LE STATUT DE LUAC
+
 function AfficherStatutUAC {
+    #ENTETE
     AfficherEntete
+    #TITRE 
     Write-Host "  STATUT DE L'UAC"
     Write-Host ""
-    
+    #LOG
     SauvegarderLog "Consultation_StatutUAC"
     
     try {
+        #UAC DANS LE REGISTRE
         $uac = Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "EnableLUA" -ErrorAction SilentlyContinue
-        $tokenFilter = Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "LocalAccountTokenFilterPolicy" -ErrorAction SilentlyContinue
-        
+        #ON REGARDE SI LUAC EST ACTIVE
         if ($uac.EnableLUA -eq 1) {
-            Write-Host "UAC: ACTIVE" -ForegroundColor Green
+            #LUAC EST ACTIVE DONC ON AFFICHE EN VERT
+            Write-Host "UAC: " -NoNewline
+            Write-Host "ACTIVE" -ForegroundColor Green
+            $uac_info = "UAC: ACTIVE"
         } else {
-            Write-Host "UAC: DESACTIVE" -ForegroundColor Red
+            #LUAC EST DESACTIVE 
+            Write-Host "UAC: " -NoNewline
+            Write-Host "DESACTIVE" -ForegroundColor Red
+            $uac_info = "UAC: DESACTIVE"
         }
-        
-        if ($tokenFilter.LocalAccountTokenFilterPolicy -eq 1) {
-            Write-Host "ACCES ADMIN DISTANT: AUTORISE" -ForegroundColor Green
-        } else {
-            Write-Host "ACCES ADMIN DISTANT: BLOQUE" -ForegroundColor Red
-        }
-        
-        $uac_info = "ENABLELUA: $($uac.EnableLUA)`nLOCALACCOUNTTOKENFILTERPOLICY: $($tokenFilter.LocalAccountTokenFilterPolicy)"
+        #FICHIER INFO
         SauvegarderInfo "=== STATUT UAC === $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')`n$uac_info"
-        
     } catch {
+        #ERREUR
         Write-Host "IMPOSSIBLE DE RECUPERER LE STATUT UAC" -ForegroundColor DarkGray
     }
-    
     Write-Host ""
     Read-Host "APPUYEZ SUR [ENTREE] POUR CONTINUER"
     MenuSysteme
