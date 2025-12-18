@@ -347,7 +347,14 @@ scanner_reseau() {
             noms_machines["$ip"]="$nom"
         fi
     done < "$fichier_noms"
-    
+    #DEBUG - A SUPPRIMER
+    echo "=== DEBUG ===" >> /tmp/debug_scan.txt
+    echo "fichier_temp:" >> /tmp/debug_scan.txt
+    cat "$fichier_temp" >> /tmp/debug_scan.txt 2>/dev/null
+    echo "---" >> /tmp/debug_scan.txt
+    echo "fichier_noms:" >> /tmp/debug_scan.txt
+    cat "$fichier_noms" >> /tmp/debug_scan.txt 2>/dev/null
+    echo "=== FIN ===" >> /tmp/debug_scan.txt   
     #ON SUPPRIME LES FICHIERS TEMPORAIRES
     rm -f "$fichier_temp" "$fichier_noms"
     
