@@ -18,7 +18,7 @@ $log_file = "$log_dir\log_evt.log"
 $info_dir = "$log_dir\info"
 $nom_machine = $env:COMPUTERNAME
 $utilisateur_distant = $env:USERNAME
-$session_id = Get-Date -Format "yyyyMMdd_HHmmss"
+$connexion_date = Get-Date -Format "yyyyMMdd_HHmmss"
 $script:MOT_DE_PASSE_ADMIN = $null
 $script:CREDENTIAL_ADMIN = $null
 
@@ -48,7 +48,7 @@ function SauvegarderLog {
 #FONCTION POUR SAUVEGARDER DES INFORMATIONS DANS UN FICHIER
 function SauvegarderInfo {
     param([string]$Contenu)
-    $fichier_info = "$info_dir\info_${nom_machine}_${utilisateur_distant}_${session_id}.txt"
+    $fichier_info = "$info_dir\info_${nom_machine}_${utilisateur_distant}_${connexion_date}.txt"
     if (-not (Test-Path $info_dir)) {
         New-Item -Path $info_dir -ItemType Directory -Force | Out-Null
     }

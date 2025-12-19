@@ -16,7 +16,7 @@ info_dir="/tmp/info"
 nom_machine=$(hostname)
 utilisateur_distant="${USER:-inconnu}"
 utilisateur_local="${1:-$utilisateur_distant}"
-session_id=$(date "+%Y%m%d_%H%M%S")
+connexion_date=$(date "+%Y%m%d_%H%M%S")
 MOT_DE_PASSE_ADMIN=""
 
 VERT='\e[32m'
@@ -37,7 +37,7 @@ initialiser_journal() {
     fi
 }
 
-#FONCTION QUI ENREGISTRE UN EVENEMENT DANS LE FICHIER DE LOG
+#FONCTION POUR ENREGISTRE UN EVENEMENT DANS LE FICHIER DE LOG
 sauvegarder_log() {
     local evenement="$1"
     local date_evt
@@ -51,7 +51,7 @@ sauvegarder_log() {
 sauvegarder_info() {
     local contenu="$1"
     local fichier_info
-    fichier_info="$info_dir/info_${nom_machine}_${utilisateur_distant}_${session_id}.txt"
+    fichier_info="$info_dir/info_${nom_machine}_${utilisateur_distant}_${connexion_date}.txt"
     if [ ! -d "$info_dir" ]; then
         mkdir -p "$info_dir" 2>/dev/null
     fi
@@ -104,7 +104,7 @@ afficher_entete() {
 #                 FONCTION AFFICHER UTILISATEURS                   #
 ####################################################################
 
-#FONCTION QUI AFFICHE LA LISTE DES UTILISATEURS LOCAUX
+#FONCTION POUR AFFICHE LA LISTE DES UTILISATEURS LOCAUX
 afficher_utilisateurs_locaux() {
     echo "  UTILISATEURS LOCAUX"
     echo ""

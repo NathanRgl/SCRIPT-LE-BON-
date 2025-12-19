@@ -124,7 +124,7 @@ function RecupererInfoWindows {
 }
 
 #################################################################################
-# FONCTIONS POUR DETECTER LES UTILISATEURS WINDOWS/LE SYSTEME/LE NOM DE MACHINE#
+# FONCTIONS POUR DETECTER LES UTILISATEURS WINDOWS/LE SYSTEME/LE NOM DE MACHINE #
 #################################################################################
 
 #FONCTION POUR TROUVER LUTILISATEUR WINDOWS VALIDE EN SSH
